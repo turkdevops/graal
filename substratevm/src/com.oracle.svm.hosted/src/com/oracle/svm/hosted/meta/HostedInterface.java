@@ -24,7 +24,7 @@
  */
 package com.oracle.svm.hosted.meta;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.meta.JavaKind;
 
@@ -36,7 +36,7 @@ import jdk.vm.ci.meta.JavaKind;
  */
 public class HostedInterface extends HostedType {
 
-    public HostedInterface(HostedUniverse universe, AnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedInterface[] interfaces) {
+    public HostedInterface(HostedUniverse universe, BaseAnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedInterface[] interfaces) {
         super(universe, wrapped, kind, storageKind, null, interfaces, false);
     }
 

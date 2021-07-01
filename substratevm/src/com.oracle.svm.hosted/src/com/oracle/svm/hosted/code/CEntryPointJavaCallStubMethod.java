@@ -33,7 +33,7 @@ import org.graalvm.compiler.nodes.java.LoadFieldNode;
 import org.graalvm.nativeimage.c.function.CEntryPoint;
 import org.graalvm.nativeimage.c.function.CFunctionPointer;
 
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.c.BoxedRelocatedPointer;
 import com.oracle.svm.core.thread.VMThreads.StatusSupport;
 import com.oracle.svm.hosted.phases.HostedGraphKit;

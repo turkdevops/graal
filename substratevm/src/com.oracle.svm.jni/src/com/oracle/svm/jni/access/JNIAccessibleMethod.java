@@ -32,7 +32,7 @@ import org.graalvm.nativeimage.Platform.HOSTED_ONLY;
 import org.graalvm.nativeimage.Platforms;
 import org.graalvm.nativeimage.c.function.CFunctionPointer;
 
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.util.VMError;
 import com.oracle.svm.hosted.FeatureImpl.CompilationAccessImpl;
 import com.oracle.svm.hosted.meta.HostedUniverse;

@@ -24,7 +24,7 @@
  */
 package com.oracle.svm.hosted.substitute;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 
 public class DeletedElementException extends UnsupportedFeatureException {
     private static final long serialVersionUID = 1L;

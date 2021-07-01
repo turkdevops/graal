@@ -37,7 +37,7 @@ import java.util.Set;
 
 import org.graalvm.nativeimage.hosted.Feature;
 
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
 import com.oracle.svm.core.FallbackExecutor;
 import com.oracle.svm.core.SubstrateOptions;

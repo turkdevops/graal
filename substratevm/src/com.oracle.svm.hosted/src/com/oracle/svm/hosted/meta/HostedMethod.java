@@ -35,12 +35,12 @@ import org.graalvm.compiler.debug.DebugContext;
 import org.graalvm.compiler.debug.JavaMethodContext;
 import org.graalvm.compiler.nodes.StructuredGraph;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 import com.oracle.graal.pointsto.infrastructure.GraphProvider;
-import com.oracle.graal.pointsto.infrastructure.OriginalMethodProvider;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaMethod;
+import com.oracle.graal.analysis.infrastructure.OriginalMethodProvider;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaMethod;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.graal.pointsto.results.StaticAnalysisResults;
 import com.oracle.svm.core.annotate.AlwaysInline;
 import com.oracle.svm.core.annotate.StubCallingConvention;

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.meta.JavaKind;
 import jdk.vm.ci.meta.ResolvedJavaField;
@@ -41,7 +41,7 @@ public class HostedInstanceClass extends HostedClass {
     protected boolean monitorFieldNeeded = false;
     protected int monitorFieldOffset = 0;
 
-    public HostedInstanceClass(HostedUniverse universe, AnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedClass superClass, HostedInterface[] interfaces, boolean isCloneable) {
+    public HostedInstanceClass(HostedUniverse universe, BaseAnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedClass superClass, HostedInterface[] interfaces, boolean isCloneable) {
         super(universe, wrapped, kind, storageKind, superClass, interfaces, isCloneable);
     }
 

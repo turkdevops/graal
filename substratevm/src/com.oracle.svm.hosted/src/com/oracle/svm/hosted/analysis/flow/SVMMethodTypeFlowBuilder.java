@@ -44,7 +44,7 @@ import com.oracle.graal.pointsto.flow.ProxyTypeFlow;
 import com.oracle.graal.pointsto.flow.SourceTypeFlow;
 import com.oracle.graal.pointsto.flow.builder.TypeFlowBuilder;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 import com.oracle.svm.core.graal.jdk.SubstrateArraysCopyOf;
 import com.oracle.svm.core.graal.thread.CompareAndSetVMThreadLocalNode;
@@ -190,13 +190,13 @@ public class SVMMethodTypeFlowBuilder extends MethodTypeFlowBuilder {
                      * writing the objects to the all-instantiated.
                      */
                     result = TypeFlowBuilder.create(bb, node, SourceTypeFlow.class, () -> {
-                        SourceTypeFlow src = new SourceTypeFlow(node, TypeState.forExactType(bb, (AnalysisType) objStamp.type(), !objStamp.nonNull()));
+                        SourceTypeFlow src = new SourceTypeFlow(node, TypeState.forExactType(bb, (BaseAnalysisType) objStamp.type(), !objStamp.nonNull()));
                         methodFlow.addMiscEntry(src);
                         return src;
                     });
                 } else {
                     /* Use a type state which consists of the entire node's type hierarchy. */
-                    AnalysisType type = (AnalysisType) (objStamp.type() == null ? bb.getObjectType() : objStamp.type());
+                    BaseAnalysisType type = (BaseAnalysisType) (objStamp.type() == null ? bb.getObjectType() : objStamp.type());
                     result = TypeFlowBuilder.create(bb, node, ProxyTypeFlow.class, () -> {
                         ProxyTypeFlow proxy = new ProxyTypeFlow(node, type.getTypeFlow(bb, true));
                         methodFlow.addMiscEntry(proxy);
@@ -223,7 +223,7 @@ public class SVMMethodTypeFlowBuilder extends MethodTypeFlowBuilder {
             /* Add the value object to the state of its declared type. */
             TypeFlowBuilder<?> valueBuilder = state.lookup(value);
             ObjectStamp valueStamp = (ObjectStamp) stamp;
-            AnalysisType valueType = (AnalysisType) (valueStamp.type() == null ? bb.getObjectType() : valueStamp.type());
+            BaseAnalysisType valueType = (BaseAnalysisType) (valueStamp.type() == null ? bb.getObjectType() : valueStamp.type());
 
             TypeFlowBuilder<?> storeBuilder = TypeFlowBuilder.create(bb, storeNode, ProxyTypeFlow.class, () -> {
                 ProxyTypeFlow proxy = new ProxyTypeFlow(storeNode, valueType.getTypeFlow(bb, false));

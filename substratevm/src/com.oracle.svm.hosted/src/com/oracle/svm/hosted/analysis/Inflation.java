@@ -53,20 +53,20 @@ import org.graalvm.compiler.options.OptionValues;
 import org.graalvm.word.WordBase;
 
 import com.oracle.graal.pointsto.BigBang;
-import com.oracle.graal.pointsto.ObjectScanner;
-import com.oracle.graal.pointsto.ObjectScanner.ScanReason;
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.ObjectScanner;
+import com.oracle.graal.analysis.ObjectScanner.ScanReason;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 import com.oracle.graal.pointsto.flow.MethodTypeFlow;
 import com.oracle.graal.pointsto.flow.MethodTypeFlowBuilder;
 import com.oracle.graal.pointsto.flow.TypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.graal.pointsto.reports.CallTreePrinter;
-import com.oracle.graal.pointsto.util.AnalysisError.TypeNotFoundError;
+import com.oracle.graal.analysis.util.AnalysisError.TypeNotFoundError;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.annotate.UnknownObjectField;
 import com.oracle.svm.core.annotate.UnknownPrimitiveField;
@@ -121,10 +121,10 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
     @Override
     protected void checkObjectGraph(ObjectScanner objectScanner) {
         universe.getFields().forEach(this::handleUnknownValueField);
-        universe.getTypes().stream().filter(AnalysisType::isReachable).forEach(this::checkType);
+        universe.getTypes().stream().filter(BaseAnalysisType::isReachable).forEach(this::checkType);
 
         /* Scan hubs of all types that end up in the native image. */
-        universe.getTypes().stream().filter(AnalysisType::isReachable).forEach(type -> scanHub(objectScanner, type));
+        universe.getTypes().stream().filter(BaseAnalysisType::isReachable).forEach(type -> scanHub(objectScanner, type));
     }
 
     @Override
@@ -132,7 +132,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
         return (SVMHost) hostVM;
     }
 
-    private void checkType(AnalysisType type) {
+    private void checkType(BaseAnalysisType type) {
         assert type.isReachable();
         DynamicHub hub = getHostVM().dynamicHub(type);
         if (hub.getGenericInfo() == null) {
@@ -148,7 +148,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
             }
 
             try {
-                AnalysisType enclosingType = type.getEnclosingType();
+                BaseAnalysisType enclosingType = type.getEnclosingType();
                 if (enclosingType != null) {
                     hub.setEnclosingClass(getHostVM().dynamicHub(enclosingType));
                 }
@@ -332,7 +332,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
         }
     }
 
-    private void fillGenericInfo(AnalysisType type, DynamicHub hub) {
+    private void fillGenericInfo(BaseAnalysisType type, DynamicHub hub) {
         Class<?> javaClass = type.getJavaClass();
 
         TypeVariable<?>[] typeParameters = javaClass.getTypeParameters();
@@ -377,7 +377,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
         hub.setGenericInfo(GenericInfo.factory(typeParameters, cachedGenericInterfaces, genericSuperClass));
     }
 
-    private void fillAnnotatedSuperInfo(AnalysisType type, DynamicHub hub) {
+    private void fillAnnotatedSuperInfo(BaseAnalysisType type, DynamicHub hub) {
         Class<?> javaClass = type.getJavaClass();
 
         AnnotatedType annotatedSuperclass;
@@ -421,9 +421,9 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
     }
 
     class InterfacesEncodingKey {
-        final AnalysisType[] aInterfaces;
+        final BaseAnalysisType[] aInterfaces;
 
-        InterfacesEncodingKey(AnalysisType[] aInterfaces) {
+        InterfacesEncodingKey(BaseAnalysisType[] aInterfaces) {
             this.aInterfaces = aInterfaces;
         }
 
@@ -450,10 +450,10 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
     /**
      * Fill array returned by Class.getInterfaces().
      */
-    private void fillInterfaces(AnalysisType type, DynamicHub hub) {
+    private void fillInterfaces(BaseAnalysisType type, DynamicHub hub) {
         SVMHost svmHost = (SVMHost) hostVM;
 
-        AnalysisType[] aInterfaces = type.getInterfaces();
+        BaseAnalysisType[] aInterfaces = type.getInterfaces();
         if (aInterfaces.length == 0) {
             hub.setInterfacesEncoding(null);
         } else if (aInterfaces.length == 1) {
@@ -468,7 +468,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
         }
     }
 
-    private void scanHub(ObjectScanner objectScanner, AnalysisType type) {
+    private void scanHub(ObjectScanner objectScanner, BaseAnalysisType type) {
         SVMHost svmHost = (SVMHost) hostVM;
         JavaConstant hubConstant = SubstrateObjectConstant.forObject(svmHost.dynamicHub(type));
         objectScanner.scanConstant(hubConstant, ScanReason.HUB);
@@ -487,14 +487,14 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
 
             field.setCanBeNull(unknownObjectField.canBeNull());
 
-            List<AnalysisType> aAnnotationTypes = extractAnnotationTypes(field, unknownObjectField);
+            List<BaseAnalysisType> aAnnotationTypes = extractAnnotationTypes(field, unknownObjectField);
 
             /*
              * Only if an UnknownValue field is really accessed, we register all the field's
              * sub-types as allocated.
              */
             if (field.isAccessed()) {
-                for (AnalysisType type : aAnnotationTypes) {
+                for (BaseAnalysisType type : aAnnotationTypes) {
                     type.registerAsAllocated(null);
                 }
             }
@@ -503,7 +503,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
              * Use the annotation types, instead of the declared type, in the UnknownObjectField
              * annotated fields initialization.
              */
-            handleUnknownObjectField(field, aAnnotationTypes.toArray(new AnalysisType[0]));
+            handleUnknownObjectField(field, aAnnotationTypes.toArray(new BaseAnalysisType[0]));
 
         } else if (unknownPrimitiveField != null) {
             assert !Modifier.isFinal(field.getModifiers()) : "@UnknownPrimitiveField annotated field " + field.format("%H.%n") + " cannot be final";
@@ -518,7 +518,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
         handledUnknownValueFields.add(field);
     }
 
-    private List<AnalysisType> extractAnnotationTypes(AnalysisField field, UnknownObjectField unknownObjectField) {
+    private List<BaseAnalysisType> extractAnnotationTypes(AnalysisField field, UnknownObjectField unknownObjectField) {
         List<Class<?>> annotationTypes = new ArrayList<>(Arrays.asList(unknownObjectField.types()));
         for (String annotationTypeName : unknownObjectField.fullyQualifiedTypes()) {
             try {
@@ -529,11 +529,11 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
             }
         }
 
-        List<AnalysisType> aAnnotationTypes = new ArrayList<>();
-        AnalysisType declaredType = field.getType();
+        List<BaseAnalysisType> aAnnotationTypes = new ArrayList<>();
+        BaseAnalysisType declaredType = field.getType();
 
         for (Class<?> annotationType : annotationTypes) {
-            AnalysisType aAnnotationType = metaAccess.lookupJavaType(annotationType);
+            BaseAnalysisType aAnnotationType = metaAccess.lookupJavaType(annotationType);
 
             assert !WordBase.class.isAssignableFrom(annotationType) : "Annotation type must not be a subtype of WordBase: field: " + field + " | declared type: " + declaredType +
                             " | annotation type: " + annotationType;
@@ -551,20 +551,20 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
      * Register a field as containing unknown object(s), i.e., is usually written only in hosted
      * code. It can have multiple declared types provided via annotation.
      */
-    private void handleUnknownObjectField(AnalysisField aField, AnalysisType... declaredTypes) {
+    private void handleUnknownObjectField(AnalysisField aField, BaseAnalysisType... declaredTypes) {
         assert aField.getJavaKind() == JavaKind.Object;
 
         aField.registerAsWritten(null);
 
         /* Link the field with all declared types. */
-        for (AnalysisType fieldDeclaredType : declaredTypes) {
+        for (BaseAnalysisType fieldDeclaredType : declaredTypes) {
             TypeFlow<?> fieldDeclaredTypeFlow = fieldDeclaredType.getTypeFlow(this, true);
             if (aField.isStatic()) {
                 fieldDeclaredTypeFlow.addUse(this, aField.getStaticFieldFlow());
             } else {
                 fieldDeclaredTypeFlow.addUse(this, aField.getInitialInstanceFieldFlow());
                 if (fieldDeclaredType.isArray()) {
-                    AnalysisType fieldComponentType = fieldDeclaredType.getComponentType();
+                    BaseAnalysisType fieldComponentType = fieldDeclaredType.getComponentType();
                     aField.getInitialInstanceFieldFlow().addUse(this, aField.getInstanceFieldFlow());
                     // TODO is there a better way to signal that the elements type flow of a unknown
                     // object field is not empty?
@@ -618,7 +618,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
             final Set<Annotation> usedAnnotations = all.stream()
                             .filter(a -> {
                                 try {
-                                    AnalysisType annotationClass = metaAccess.lookupJavaType(a.getClass());
+                                    BaseAnalysisType annotationClass = metaAccess.lookupJavaType(a.getClass());
                                     return isAnnotationUsed(annotationClass);
                                 } catch (TypeNotFoundError e) {
                                     /*
@@ -652,19 +652,19 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
      * case where Substrate VM behaves differently than a normal Java VM: When you just query the
      * number of annotations on a class, then we might return a lower number.
      */
-    private static boolean isAnnotationUsed(AnalysisType annotationType) {
+    private static boolean isAnnotationUsed(BaseAnalysisType annotationType) {
         if (annotationType.isReachable()) {
             return true;
         }
         assert annotationType.getInterfaces().length == 1 : annotationType;
 
-        AnalysisType annotationInterfaceType = annotationType.getInterfaces()[0];
+        BaseAnalysisType annotationInterfaceType = annotationType.getInterfaces()[0];
         return annotationInterfaceType.isReachable();
     }
 
     public static ResolvedJavaType toWrappedType(ResolvedJavaType type) {
-        if (type instanceof AnalysisType) {
-            return ((AnalysisType) type).getWrappedWithoutResolve();
+        if (type instanceof BaseAnalysisType) {
+            return ((BaseAnalysisType) type).getWrappedWithoutResolve();
         } else if (type instanceof HostedType) {
             return ((HostedType) type).getWrapped().getWrappedWithoutResolve();
         } else {
@@ -673,7 +673,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
     }
 
     @Override
-    public boolean trackConcreteAnalysisObjects(AnalysisType type) {
+    public boolean trackConcreteAnalysisObjects(BaseAnalysisType type) {
         /*
          * For classes marked as UnknownClass no context sensitive analysis is done, i.e., no
          * concrete objects are tracked.
@@ -710,7 +710,7 @@ public class Inflation extends BigBang implements NativeImageStaticAnalysisEngin
             String callerName = caller.getQualifiedName();
             if (targetCallersPattern.matcher(callerName).find()) {
                 SuppressSVMWarnings suppress = caller.getAnnotation(SuppressSVMWarnings.class);
-                AnalysisType callerType = caller.getDeclaringClass();
+                BaseAnalysisType callerType = caller.getDeclaringClass();
                 while (suppress == null && callerType != null) {
                     suppress = callerType.getAnnotation(SuppressSVMWarnings.class);
                     callerType = callerType.getEnclosingType();

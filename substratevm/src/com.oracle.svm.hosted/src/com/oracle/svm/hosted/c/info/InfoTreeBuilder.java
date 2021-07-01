@@ -53,8 +53,8 @@ import org.graalvm.nativeimage.c.struct.RawStructure;
 import org.graalvm.nativeimage.c.struct.UniqueLocationIdentity;
 import org.graalvm.word.PointerBase;
 
-import com.oracle.graal.pointsto.infrastructure.WrappedElement;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaType;
+import com.oracle.graal.analysis.infrastructure.WrappedElement;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaType;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
 import com.oracle.svm.core.c.CTypedef;
 import com.oracle.svm.core.c.struct.PinnedObjectField;

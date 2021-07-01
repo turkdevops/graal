@@ -36,7 +36,7 @@ import org.graalvm.compiler.nodes.StructuredGraph;
 import org.graalvm.compiler.nodes.UnwindNode;
 import org.graalvm.compiler.nodes.ValueNode;
 
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.annotate.Delete;
 import com.oracle.svm.core.meta.SubstrateObjectConstant;
 import com.oracle.svm.core.option.SubstrateOptionsParser;

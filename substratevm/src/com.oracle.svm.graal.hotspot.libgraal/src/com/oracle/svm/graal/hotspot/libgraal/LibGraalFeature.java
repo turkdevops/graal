@@ -117,7 +117,7 @@ import org.graalvm.word.WordFactory;
 
 import com.oracle.graal.pointsto.flow.InvokeTypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.OS;
 import com.oracle.svm.core.RuntimeAssertionsSupport;
 import com.oracle.svm.core.SubstrateUtil;

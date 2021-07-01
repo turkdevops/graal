@@ -28,8 +28,8 @@ import org.graalvm.nativeimage.Platform;
 import org.graalvm.nativeimage.Platforms;
 
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.meta.ReadableJavaField;
 import com.oracle.svm.hosted.SVMHost;
 import com.oracle.svm.hosted.classinitialization.ClassInitializationSupport;

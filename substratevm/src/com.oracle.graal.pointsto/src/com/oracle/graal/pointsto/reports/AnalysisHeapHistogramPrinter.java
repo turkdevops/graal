@@ -34,11 +34,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.oracle.graal.pointsto.ObjectScanner;
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.ObjectScanner;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.meta.JavaConstant;
 
@@ -64,11 +64,11 @@ public final class AnalysisHeapHistogramPrinter extends ObjectScanner {
         out.println("Heap histogram");
         out.format("%8s %s %n", "Count", "Class");
 
-        histogram.entrySet().stream().sorted(Map.Entry.<AnalysisType, Integer> comparingByValue().reversed())
+        histogram.entrySet().stream().sorted(Map.Entry.<BaseAnalysisType, Integer> comparingByValue().reversed())
                         .forEach(entry -> out.format("%8d %8s %n", entry.getValue(), entry.getKey().toJavaName()));
     }
 
-    private final Map<AnalysisType, Integer> histogram = new HashMap<>();
+    private final Map<BaseAnalysisType, Integer> histogram = new HashMap<>();
 
     private AnalysisHeapHistogramPrinter(StaticAnalysisEngine analysis) {
         super(analysis, null, new ReusableSet());
@@ -76,7 +76,7 @@ public final class AnalysisHeapHistogramPrinter extends ObjectScanner {
 
     @Override
     protected void forScannedConstant(JavaConstant scannedValue, ScanReason reason) {
-        AnalysisType type = constantType(analysis, scannedValue);
+        BaseAnalysisType type = constantType(analysis, scannedValue);
         int count = histogram.getOrDefault(type, 0);
         histogram.put(type, count + 1);
     }
@@ -94,10 +94,10 @@ public final class AnalysisHeapHistogramPrinter extends ObjectScanner {
     }
 
     @Override
-    public void forNullArrayElement(JavaConstant array, AnalysisType arrayType, int index) {
+    public void forNullArrayElement(JavaConstant array, BaseAnalysisType arrayType, int index) {
     }
 
     @Override
-    public void forNonNullArrayElement(JavaConstant array, AnalysisType arrayType, JavaConstant elementConstant, AnalysisType elementType, int index) {
+    public void forNonNullArrayElement(JavaConstant array, BaseAnalysisType arrayType, JavaConstant elementConstant, BaseAnalysisType elementType, int index) {
     }
 }

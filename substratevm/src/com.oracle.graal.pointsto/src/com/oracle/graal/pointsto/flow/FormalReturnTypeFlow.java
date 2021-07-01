@@ -28,7 +28,7 @@ import org.graalvm.compiler.nodes.ValueNode;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.code.BytecodePosition;
 
@@ -36,11 +36,11 @@ public class FormalReturnTypeFlow extends TypeFlow<BytecodePosition> {
 
     protected final AnalysisMethod method;
 
-    public FormalReturnTypeFlow(ValueNode source, AnalysisType declaredType, AnalysisMethod method) {
+    public FormalReturnTypeFlow(ValueNode source, BaseAnalysisType declaredType, AnalysisMethod method) {
         this(source.getNodeSourcePosition(), declaredType, method);
     }
 
-    public FormalReturnTypeFlow(BytecodePosition source, AnalysisType declaredType, AnalysisMethod method) {
+    public FormalReturnTypeFlow(BytecodePosition source, BaseAnalysisType declaredType, AnalysisMethod method) {
         super(source, declaredType);
         this.method = method;
     }

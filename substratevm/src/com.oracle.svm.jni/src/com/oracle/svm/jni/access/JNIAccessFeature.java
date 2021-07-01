@@ -45,7 +45,7 @@ import org.graalvm.nativeimage.impl.ReflectionRegistry;
 
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.configure.ConfigurationFile;
 import com.oracle.svm.core.configure.ConfigurationFiles;
 import com.oracle.svm.core.configure.ReflectionConfigurationParser;
@@ -252,7 +252,7 @@ public class JNIAccessFeature implements Feature {
             return null;
         }
         return JNIReflectionDictionary.singleton().addClassIfAbsent(classObj, c -> {
-            AnalysisType analysisClass = access.getMetaAccess().lookupJavaType(classObj);
+            BaseAnalysisType analysisClass = access.getMetaAccess().lookupJavaType(classObj);
             if (analysisClass.isInterface() || (analysisClass.isInstanceClass() && analysisClass.isAbstract())) {
                 analysisClass.registerAsReachable();
             } else {
@@ -310,12 +310,12 @@ public class JNIAccessFeature implements Feature {
         field.registerAsRead(null);
         if (writable) {
             field.registerAsWritten(null);
-            AnalysisType fieldType = field.getType();
+            BaseAnalysisType fieldType = field.getType();
             if (fieldType.isArray() && !access.isReachable(fieldType)) {
                 // For convenience, make the array type reachable if its elemental type becomes
                 // such, allowing the array creation via JNI without an explicit reflection config.
                 access.registerReachabilityHandler(a -> fieldType.registerAsAllocated(null),
-                                ((AnalysisType) fieldType.getElementalType()).getJavaClass());
+                                ((BaseAnalysisType) fieldType.getElementalType()).getJavaClass());
             }
         } else if (field.isStatic() && field.isFinal()) {
             MaterializedConstantFields.singleton().register(field);

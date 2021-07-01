@@ -31,8 +31,8 @@ import org.graalvm.compiler.nodes.ValueNode;
 import org.graalvm.compiler.nodes.graphbuilderconf.ClassInitializationPlugin;
 import org.graalvm.compiler.nodes.graphbuilderconf.GraphBuilderContext;
 
-import com.oracle.graal.pointsto.constraints.UnresolvedElementException;
-import com.oracle.graal.pointsto.infrastructure.WrappedConstantPool;
+import com.oracle.graal.analysis.constraints.UnresolvedElementException;
+import com.oracle.graal.analysis.infrastructure.WrappedConstantPool;
 
 import jdk.vm.ci.meta.ConstantPool;
 import jdk.vm.ci.meta.ResolvedJavaType;

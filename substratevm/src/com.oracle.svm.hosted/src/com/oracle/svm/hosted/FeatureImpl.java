@@ -53,12 +53,12 @@ import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.Feature.DuringAnalysisAccess;
 import org.graalvm.nativeimage.hosted.RuntimeReflection;
 
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.LinkerInvocation;
 import com.oracle.svm.core.graal.meta.RuntimeConfiguration;
 import com.oracle.svm.core.hub.DynamicHub;
@@ -204,7 +204,7 @@ public class FeatureImpl {
             return isReachable(getMetaAccess().lookupJavaType(clazz));
         }
 
-        public boolean isReachable(AnalysisType type) {
+        public boolean isReachable(BaseAnalysisType type) {
             return type.isReachable();
         }
 
@@ -226,11 +226,11 @@ public class FeatureImpl {
 
         public Set<Class<?>> reachableSubtypes(Class<?> baseClass) {
             return reachableSubtypes(getMetaAccess().lookupJavaType(baseClass)).stream()
-                            .map(AnalysisType::getJavaClass).collect(Collectors.toCollection(LinkedHashSet::new));
+                            .map(BaseAnalysisType::getJavaClass).collect(Collectors.toCollection(LinkedHashSet::new));
         }
 
-        Set<AnalysisType> reachableSubtypes(AnalysisType baseType) {
-            Set<AnalysisType> result = AnalysisUniverse.getSubtypes(baseType);
+        Set<BaseAnalysisType> reachableSubtypes(BaseAnalysisType baseType) {
+            Set<BaseAnalysisType> result = AnalysisUniverse.getSubtypes(baseType);
             result.removeIf(t -> !isReachable(t));
             return result;
         }
@@ -305,7 +305,7 @@ public class FeatureImpl {
             registerAsUsed(getMetaAccess().lookupJavaType(clazz));
         }
 
-        public void registerAsUsed(AnalysisType aType) {
+        public void registerAsUsed(BaseAnalysisType aType) {
             aType.registerAsReachable();
         }
 
@@ -314,7 +314,7 @@ public class FeatureImpl {
             registerAsInHeap(getMetaAccess().lookupJavaType(clazz));
         }
 
-        public void registerAsInHeap(AnalysisType aType) {
+        public void registerAsInHeap(BaseAnalysisType aType) {
             aType.registerAsInHeap();
         }
 

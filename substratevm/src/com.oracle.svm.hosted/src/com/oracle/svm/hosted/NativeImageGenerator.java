@@ -55,6 +55,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.oracle.graal.pointsto.mutable.DefaultAnalysisFactory;
+import com.oracle.graal.pointsto.mutable.MutableAnalysisUniverseImpl;
 import com.oracle.svm.hosted.analysis.NativeImageStaticAnalysisEngine;
 import org.graalvm.collections.EconomicSet;
 import org.graalvm.collections.Pair;
@@ -134,16 +136,16 @@ import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.BytecodeSensitiveAnalysisPolicy;
 import com.oracle.graal.pointsto.DefaultAnalysisPolicy;
 import com.oracle.graal.pointsto.api.PointstoOptions;
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaMethod;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaMethod;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMetaAccessExtensionProvider;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.graal.pointsto.reports.AnalysisHeapHistogramPrinter;
 import com.oracle.graal.pointsto.reports.AnalysisReportsOptions;
 import com.oracle.graal.pointsto.reports.CallTreePrinter;
@@ -152,8 +154,8 @@ import com.oracle.graal.pointsto.reports.ReportUtils;
 import com.oracle.graal.pointsto.reports.StatisticsPrinter;
 import com.oracle.graal.pointsto.typestate.PointsToStats;
 import com.oracle.graal.pointsto.typestate.TypeState;
-import com.oracle.graal.pointsto.util.Timer;
-import com.oracle.graal.pointsto.util.Timer.StopTimer;
+import com.oracle.graal.analysis.util.Timer;
+import com.oracle.graal.analysis.util.Timer.StopTimer;
 import com.oracle.svm.core.BuildArtifacts;
 import com.oracle.svm.core.BuildArtifacts.ArtifactType;
 import com.oracle.svm.core.ClassLoaderQuery;
@@ -793,7 +795,7 @@ public class NativeImageGenerator {
                 if (PointstoOptions.PrintSynchronizedAnalysis.getValue(options)) {
                     TypeState allSynchronizedTypeState = analysis.getAllSynchronizedTypeState();
                     String typesString = allSynchronizedTypeState.closeToAllInstantiated(analysis) ? "close to all instantiated" : //
-                                    StreamSupport.stream(allSynchronizedTypeState.types().spliterator(), false).map(AnalysisType::getName).collect(Collectors.joining(", "));
+                                    StreamSupport.stream(allSynchronizedTypeState.types().spliterator(), false).map(BaseAnalysisType::getName).collect(Collectors.joining(", "));
                     System.out.println();
                     System.out.println("AllSynchronizedTypes");
                     System.out.println("Synchronized types #: " + allSynchronizedTypeState.typesCount());
@@ -821,7 +823,7 @@ public class NativeImageGenerator {
             return true;
         }
         try (StopTimer t = new Timer(imageName, "(verifyAssignableTypes)").start()) {
-            return AnalysisType.verifyAssignableTypes(analysis);
+            return BaseAnalysisType.verifyAssignableTypes(analysis);
         }
     }
 
@@ -925,8 +927,11 @@ public class NativeImageGenerator {
         automaticSubstitutions.init(loader, originalMetaAccess);
         AnalysisPolicy analysisPolicy = PointstoOptions.AllocationSiteSensitiveHeap.getValue(options) ? new BytecodeSensitiveAnalysisPolicy(options)
                         : new DefaultAnalysisPolicy(options);
-        return new AnalysisUniverse(hostVM, target.wordJavaKind, loader.platform, analysisPolicy, aSubstitutions, originalMetaAccess, originalSnippetReflection,
-                        new SubstrateSnippetReflectionProvider(new SubstrateWordTypes(originalMetaAccess, FrameAccess.getWordKind())));
+        DefaultAnalysisFactory defaultAnalysisFactory = new DefaultAnalysisFactory();
+        MutableAnalysisUniverseImpl universe = new MutableAnalysisUniverseImpl(hostVM, target.wordJavaKind, loader.platform, analysisPolicy, aSubstitutions, originalMetaAccess,
+                        originalSnippetReflection, new SubstrateSnippetReflectionProvider(new SubstrateWordTypes(originalMetaAccess, FrameAccess.getWordKind())), defaultAnalysisFactory);
+        defaultAnalysisFactory.setUniverse(universe);
+        return universe;
     }
 
     public static AnnotationSubstitutionProcessor createDeclarativeSubstitutionProcessor(MetaAccessProvider originalMetaAccess, ImageClassLoader loader,
@@ -1152,8 +1157,8 @@ public class NativeImageGenerator {
         plugins.appendNodePlugin(new DeletedFieldsPlugin());
         plugins.appendNodePlugin(new InjectedAccessorsPlugin());
         ResolvedJavaType resolvedJavaType = providers.getMetaAccess().lookupJavaType(ClassInitializationTracking.class);
-        if (resolvedJavaType instanceof AnalysisType) {
-            ((AnalysisType) resolvedJavaType).registerAsReachable();
+        if (resolvedJavaType instanceof BaseAnalysisType) {
+            ((BaseAnalysisType) resolvedJavaType).registerAsReachable();
             ResolvedJavaField field = providers.getMetaAccess().lookupJavaField(ReflectionUtil.lookupField(ClassInitializationTracking.class, "IS_IMAGE_BUILD_TIME"));
             ((AnalysisField) field).registerAsAccessed();
         }
@@ -1456,7 +1461,7 @@ public class NativeImageGenerator {
             for (int i = 0; i < method.getTypeFlow().getOriginalMethodFlows().getParameters().length; i++) {
                 TypeState parameterState = method.getTypeFlow().getParameterTypeState(bigbang, i);
                 if (parameterState != null) {
-                    AnalysisType declaredType = method.getTypeFlow().getOriginalMethodFlows().getParameter(i).getDeclaredType();
+                    BaseAnalysisType declaredType = method.getTypeFlow().getOriginalMethodFlows().getParameter(i).getDeclaredType();
                     if (declaredType.isInterface()) {
                         TypeState declaredTypeState = declaredType.getTypeFlow(bigbang, true).getState();
                         parameterState = TypeState.forSubtraction(bigbang, parameterState, declaredTypeState);
@@ -1473,7 +1478,7 @@ public class NativeImageGenerator {
         for (AnalysisField field : aUniverse.getFields()) {
             TypeState state = field.getTypeState();
             if (state != null) {
-                AnalysisType declaredType = field.getType();
+                BaseAnalysisType declaredType = field.getType();
                 if (declaredType.isInterface()) {
                     state = TypeState.forSubtraction(bigbang, state, declaredType.getTypeFlow(bigbang, true).getState());
                     if (!state.isEmpty()) {
@@ -1496,7 +1501,7 @@ public class NativeImageGenerator {
                     checkName(field.format("%H.%n"), null);
                 }
             }
-            for (AnalysisType type : aUniverse.getTypes()) {
+            for (BaseAnalysisType type : aUniverse.getTypes()) {
                 if (type.isReachable()) {
                     checkName(type.toJavaName(true), null);
                 }

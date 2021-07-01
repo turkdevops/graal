@@ -31,7 +31,7 @@ import org.graalvm.compiler.nodes.InvokeWithExceptionNode;
 import org.graalvm.compiler.nodes.ValueNode;
 import org.graalvm.compiler.nodes.java.ExceptionObjectNode;
 
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.hosted.phases.HostedGraphKit;
 import com.oracle.svm.jni.JNIGeneratedMethodSupport;
 

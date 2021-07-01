@@ -46,12 +46,12 @@ import org.graalvm.compiler.options.OptionValues;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.api.PointstoOptions;
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError;
 
 public class MethodTypeFlow extends TypeFlow<AnalysisMethod> {
 
@@ -151,14 +151,14 @@ public class MethodTypeFlow extends TypeFlow<AnalysisMethod> {
         originalMethodFlows.setParameter(index, parameter);
     }
 
-    public void setInitialReceiverFlow(BigBang bb, AnalysisType declaringType) {
+    public void setInitialReceiverFlow(BigBang bb, BaseAnalysisType declaringType) {
         TypeFlow<?> declaringTypeFlow = declaringType.getTypeFlow(bb, false);
         InitialReceiverTypeFlow initialReceiverFlow = new InitialReceiverTypeFlow(method, declaringType);
         declaringTypeFlow.addUse(bb, initialReceiverFlow);
         originalMethodFlows.setInitialParameterFlow(initialReceiverFlow, 0);
     }
 
-    public void setInitialParameterFlow(BigBang bb, AnalysisType declaredType, int i) {
+    public void setInitialParameterFlow(BigBang bb, BaseAnalysisType declaredType, int i) {
         TypeFlow<?> declaredTypeFlow = declaredType.getTypeFlow(bb, true);
         InitialParamTypeFlow initialParameterFlow = new InitialParamTypeFlow(method, declaredType, i);
         declaredTypeFlow.addUse(bb, initialParameterFlow);

@@ -33,6 +33,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
+import com.oracle.graal.analysis.mutable.MutableAnalysisField;
 import org.graalvm.compiler.debug.GraalError;
 import org.graalvm.util.GuardedAnnotationAccess;
 
@@ -42,7 +44,7 @@ import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.FieldSinkTypeFlow;
 import com.oracle.graal.pointsto.flow.FieldTypeFlow;
 import com.oracle.graal.pointsto.flow.MethodTypeFlow;
-import com.oracle.graal.pointsto.infrastructure.OriginalFieldProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalFieldProvider;
 import com.oracle.graal.pointsto.typestate.TypeState;
 import com.oracle.graal.pointsto.util.AtomicUtils;
 import com.oracle.graal.pointsto.util.ConcurrentLightHashSet;
@@ -52,7 +54,7 @@ import jdk.vm.ci.meta.JavaKind;
 import jdk.vm.ci.meta.ResolvedJavaField;
 import jdk.vm.ci.meta.ResolvedJavaType;
 
-public class AnalysisField implements ResolvedJavaField, OriginalFieldProvider {
+public class AnalysisField implements MutableAnalysisField, OriginalFieldProvider {
 
     @SuppressWarnings("rawtypes")//
     private static final AtomicReferenceFieldUpdater<AnalysisField, Object> OBSERVERS_UPDATER = //
@@ -97,8 +99,8 @@ public class AnalysisField implements ResolvedJavaField, OriginalFieldProvider {
     /** Field's position in the list of declaring type's fields, including inherited fields. */
     private int position;
 
-    private final AnalysisType declaringClass;
-    private final AnalysisType fieldType;
+    private final BaseAnalysisType declaringClass;
+    private final BaseAnalysisType fieldType;
 
     public AnalysisField(AnalysisUniverse universe, ResolvedJavaField wrappedField) {
         assert !wrappedField.isInternal();
@@ -129,7 +131,7 @@ public class AnalysisField implements ResolvedJavaField, OriginalFieldProvider {
         }
     }
 
-    private static AnalysisType getDeclaredType(AnalysisUniverse universe, ResolvedJavaField wrappedField) {
+    private static BaseAnalysisType getDeclaredType(AnalysisUniverse universe, ResolvedJavaField wrappedField) {
         ResolvedJavaType resolvedType;
         try {
             resolvedType = wrappedField.getType().resolve(universe.substitutions.resolve(wrappedField.getDeclaringClass()));
@@ -318,7 +320,7 @@ public class AnalysisField implements ResolvedJavaField, OriginalFieldProvider {
                 universe.registerUnsafeAccessedStaticField(this);
             } else {
                 /* Register the instance field as unsafe accessed on the declaring type. */
-                AnalysisType declaringType = getDeclaringClass();
+                BaseAnalysisType declaringType = getDeclaringClass();
                 declaringType.registerUnsafeAccessedField(this, partitionKind);
             }
         }
@@ -408,7 +410,7 @@ public class AnalysisField implements ResolvedJavaField, OriginalFieldProvider {
     }
 
     @Override
-    public AnalysisType getType() {
+    public BaseAnalysisType getType() {
         return fieldType;
     }
 
@@ -428,7 +430,7 @@ public class AnalysisField implements ResolvedJavaField, OriginalFieldProvider {
     }
 
     @Override
-    public AnalysisType getDeclaringClass() {
+    public BaseAnalysisType getDeclaringClass() {
         return declaringClass;
     }
 

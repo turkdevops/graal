@@ -38,7 +38,7 @@ import org.graalvm.compiler.nodes.ParameterNode;
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.flow.TypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError;
 
 public class TypeFlowGraphBuilder {
     private final BigBang bb;

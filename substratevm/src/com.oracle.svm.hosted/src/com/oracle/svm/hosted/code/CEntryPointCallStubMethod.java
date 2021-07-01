@@ -62,11 +62,11 @@ import org.graalvm.nativeimage.c.function.CEntryPoint.IsolateContext;
 import org.graalvm.nativeimage.c.function.CEntryPoint.IsolateThreadContext;
 
 import com.oracle.graal.pointsto.infrastructure.GraphProvider;
-import com.oracle.graal.pointsto.infrastructure.UniverseMetaAccess;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaMethod;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.infrastructure.UniverseMetaAccess;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaMethod;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.SubstrateUtil;
 import com.oracle.svm.core.annotate.Uninterruptible;
 import com.oracle.svm.core.c.function.CEntryPointBuiltins;

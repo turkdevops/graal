@@ -26,8 +26,8 @@ package com.oracle.svm.hosted.analysis;
 
 import static com.oracle.svm.core.config.ConfigurationValues.getObjectLayout;
 
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 
 import jdk.vm.ci.meta.JavaKind;
 import jdk.vm.ci.meta.MetaAccessProvider;

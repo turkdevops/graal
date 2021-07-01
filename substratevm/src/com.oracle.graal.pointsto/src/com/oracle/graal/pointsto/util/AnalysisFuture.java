@@ -28,6 +28,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
+import com.oracle.graal.analysis.util.AnalysisError;
 import org.graalvm.compiler.debug.GraalError;
 
 /** Extend FutureTask for custom error reporting. */

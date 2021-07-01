@@ -24,7 +24,7 @@
  */
 package com.oracle.svm.truffle.nfi;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 import java.util.IdentityHashMap;
 import java.util.function.Function;
 import org.graalvm.nativeimage.hosted.Feature.DuringSetupAccess;

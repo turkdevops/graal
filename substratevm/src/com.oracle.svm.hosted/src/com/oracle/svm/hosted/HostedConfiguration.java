@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import com.oracle.svm.core.util.VMError;
 import com.oracle.svm.hosted.analysis.NativeImageStaticAnalysisEngine;
 import org.graalvm.compiler.api.replacements.SnippetReflectionProvider;
@@ -42,7 +42,7 @@ import org.graalvm.nativeimage.ImageSingletons;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.results.AbstractAnalysisResultsBuilder;
 import com.oracle.graal.pointsto.results.StaticAnalysisResultsBuilder;
 import com.oracle.graal.pointsto.typestate.TypeState;
@@ -176,7 +176,7 @@ public class HostedConfiguration {
         }
     }
 
-    public void collectMonitorFieldInfo(StaticAnalysisEngine analysis, HostedUniverse hUniverse, Set<AnalysisType> immutableTypes) {
+    public void collectMonitorFieldInfo(StaticAnalysisEngine analysis, HostedUniverse hUniverse, Set<BaseAnalysisType> immutableTypes) {
         /* First set the monitor field for types that always need it. */
         getForceMonitorSlotTypes(analysis).forEach(type -> setMonitorField(hUniverse, type));
 
@@ -184,19 +184,19 @@ public class HostedConfiguration {
         processedSynchronizedTypes(analysis, hUniverse, immutableTypes);
     }
 
-    private static Set<AnalysisType> getForceMonitorSlotTypes(StaticAnalysisEngine analysis) {
-        Set<AnalysisType> forceMonitorTypes = new HashSet<>();
+    private static Set<BaseAnalysisType> getForceMonitorSlotTypes(StaticAnalysisEngine analysis) {
+        Set<BaseAnalysisType> forceMonitorTypes = new HashSet<>();
         for (Class<?> forceMonitorType : MultiThreadedMonitorSupport.FORCE_MONITOR_SLOT_TYPES) {
-            Optional<AnalysisType> aType = analysis.getMetaAccess().optionalLookupJavaType(forceMonitorType);
+            Optional<BaseAnalysisType> aType = analysis.getMetaAccess().optionalLookupJavaType(forceMonitorType);
             aType.ifPresent(forceMonitorTypes::add);
         }
         return forceMonitorTypes;
     }
 
     /** Process the types that the analysis found as needing synchronization. */
-    protected void processedSynchronizedTypes(StaticAnalysisEngine analysis, HostedUniverse hUniverse, Set<AnalysisType> immutableTypes) {
+    protected void processedSynchronizedTypes(StaticAnalysisEngine analysis, HostedUniverse hUniverse, Set<BaseAnalysisType> immutableTypes) {
         TypeState allSynchronizedTypeState = analysis.getAllSynchronizedTypeState();
-        for (AnalysisType type : allSynchronizedTypeState.types()) {
+        for (BaseAnalysisType type : allSynchronizedTypeState.types()) {
             maybeSetMonitorField(hUniverse, immutableTypes, type);
         }
     }
@@ -205,13 +205,13 @@ public class HostedConfiguration {
      * Monitor fields on arrays would increase the array header too much. Also, types that must be
      * immutable cannot have a monitor field.
      */
-    protected static void maybeSetMonitorField(HostedUniverse hUniverse, Set<AnalysisType> immutableTypes, AnalysisType type) {
+    protected static void maybeSetMonitorField(HostedUniverse hUniverse, Set<BaseAnalysisType> immutableTypes, BaseAnalysisType type) {
         if (!type.isArray() && !immutableTypes.contains(type)) {
             setMonitorField(hUniverse, type);
         }
     }
 
-    private static void setMonitorField(HostedUniverse hUniverse, AnalysisType type) {
+    private static void setMonitorField(HostedUniverse hUniverse, BaseAnalysisType type) {
         final HostedInstanceClass hostedInstanceClass = (HostedInstanceClass) hUniverse.lookup(type);
         hostedInstanceClass.setNeedMonitorField();
     }

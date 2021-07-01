@@ -32,7 +32,7 @@ import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -51,7 +51,7 @@ public class CloneTypeFlow extends TypeFlow<BytecodePosition> {
     /** The allocation context for the generated clone object. Null if this is not a clone. */
     protected final AnalysisContext allocationContext;
 
-    public CloneTypeFlow(ValueNode node, AnalysisType inputType, BytecodeLocation cloneLabel, TypeFlow<?> input) {
+    public CloneTypeFlow(ValueNode node, BaseAnalysisType inputType, BytecodeLocation cloneLabel, TypeFlow<?> input) {
         super(node.getNodeSourcePosition(), inputType);
         this.cloneSite = cloneLabel;
         this.allocationContext = null;
@@ -115,7 +115,7 @@ public class CloneTypeFlow extends TypeFlow<BytecodePosition> {
         TypeState inputState = input.getState();
         TypeState cloneState = this.getState();
 
-        for (AnalysisType type : inputState.types()) {
+        for (BaseAnalysisType type : inputState.types()) {
             if (type.isArray()) {
                 if (bb.analysisPolicy().aliasArrayTypeFlows()) {
                     /* All arrays are aliased, no need to model the array clone operation. */

@@ -24,10 +24,10 @@
  */
 package com.oracle.svm.hosted;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.reports.ReportUtils;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.option.HostedOptionKey;
@@ -73,7 +73,7 @@ public class SubstitutionReportFeature implements Feature {
     }
 
     private void findSubstitutedTypes(FeatureImpl.AfterAnalysisAccessImpl access) {
-        for (AnalysisType type : access.getUniverse().getTypes()) {
+        for (BaseAnalysisType type : access.getUniverse().getTypes()) {
             if (type.isReachable() && !type.isArray()) {
                 ResolvedJavaType t = type.getWrappedWithoutResolve();
                 if (t instanceof SubstitutionType) {

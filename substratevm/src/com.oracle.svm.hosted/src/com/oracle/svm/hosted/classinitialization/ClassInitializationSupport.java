@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.graalvm.nativeimage.impl.RuntimeClassInitializationSupport;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatures;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatures;
 
 import jdk.vm.ci.meta.ResolvedJavaType;
 

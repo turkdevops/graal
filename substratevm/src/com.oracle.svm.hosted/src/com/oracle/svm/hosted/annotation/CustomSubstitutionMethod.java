@@ -31,7 +31,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Type;
 
 import com.oracle.graal.pointsto.infrastructure.GraphProvider;
-import com.oracle.graal.pointsto.infrastructure.OriginalMethodProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalMethodProvider;
 import com.oracle.svm.hosted.c.GraalAccess;
 
 import jdk.vm.ci.meta.Constant;

@@ -31,7 +31,7 @@ import org.graalvm.nativeimage.c.constant.CEnumLookup;
 import org.graalvm.nativeimage.c.constant.CEnumValue;
 import org.graalvm.util.GuardedAnnotationAccess;
 
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
 import com.oracle.svm.hosted.c.NativeLibraries;
 
 import jdk.vm.ci.meta.ResolvedJavaMethod;

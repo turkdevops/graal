@@ -45,8 +45,8 @@ import org.graalvm.compiler.debug.DebugContext;
 import org.graalvm.compiler.graph.NodeSourcePosition;
 import org.graalvm.nativeimage.ImageSingletons;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaMethod;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaMethod;
 import com.oracle.objectfile.debuginfo.DebugInfoProvider;
 import com.oracle.svm.core.StaticFieldsSupport;
 import com.oracle.svm.core.SubstrateOptions;

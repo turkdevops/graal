@@ -62,8 +62,8 @@ import org.graalvm.compiler.nodes.java.LoadFieldNode;
 import org.graalvm.compiler.replacements.nodes.MacroNode.MacroParams;
 import org.graalvm.nativeimage.hosted.Feature;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.SubstrateAnnotationInvocationHandler;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.graal.jdk.ObjectCloneWithExceptionNode;

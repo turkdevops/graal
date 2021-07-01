@@ -44,8 +44,8 @@ import com.oracle.graal.pointsto.flow.context.free.DefaultAnalysisContextPolicy;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.graal.pointsto.typestate.TypeState;
 import com.oracle.graal.pointsto.typestore.ArrayElementsTypeStore;
 import com.oracle.graal.pointsto.typestore.FieldTypeStore;
@@ -102,17 +102,17 @@ public class DefaultAnalysisPolicy extends AnalysisPolicy {
     }
 
     @Override
-    public boolean isContextSensitiveAllocation(BigBang bb, AnalysisType type, AnalysisContext allocationContext) {
+    public boolean isContextSensitiveAllocation(BigBang bb, BaseAnalysisType type, AnalysisContext allocationContext) {
         return false;
     }
 
     @Override
-    public AnalysisObject createHeapObject(BigBang bb, AnalysisType type, BytecodeLocation allocationSite, AnalysisContext allocationContext) {
+    public AnalysisObject createHeapObject(BigBang bb, BaseAnalysisType type, BytecodeLocation allocationSite, AnalysisContext allocationContext) {
         return type.getContextInsensitiveAnalysisObject();
     }
 
     @Override
-    public AnalysisObject createConstantObject(BigBang bb, JavaConstant constant, AnalysisType exactType) {
+    public AnalysisObject createConstantObject(BigBang bb, JavaConstant constant, BaseAnalysisType exactType) {
         return exactType.getContextInsensitiveAnalysisObject();
     }
 
@@ -143,13 +143,13 @@ public class DefaultAnalysisPolicy extends AnalysisPolicy {
     }
 
     @Override
-    public AbstractVirtualInvokeTypeFlow createVirtualInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    public AbstractVirtualInvokeTypeFlow createVirtualInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
         return new DefaultVirtualInvokeTypeFlow(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
     }
 
     @Override
-    public AbstractSpecialInvokeTypeFlow createSpecialInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    public AbstractSpecialInvokeTypeFlow createSpecialInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
         return new DefaultSpecialInvokeTypeFlow(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
     }
@@ -159,7 +159,7 @@ public class DefaultAnalysisPolicy extends AnalysisPolicy {
 
         private TypeState seenReceiverTypes = TypeState.forEmpty();
 
-        protected DefaultVirtualInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+        protected DefaultVirtualInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                         TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
             super(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
         }
@@ -189,7 +189,7 @@ public class DefaultAnalysisPolicy extends AnalysisPolicy {
                 receiverState = filterReceiverState(bb, receiverState);
             }
 
-            for (AnalysisType type : receiverState.types()) {
+            for (BaseAnalysisType type : receiverState.types()) {
                 if (isSaturated()) {
                     /*-
                      * The receiver can become saturated during the callees linking, which saturates
@@ -334,7 +334,7 @@ public class DefaultAnalysisPolicy extends AnalysisPolicy {
 
         MethodFlowsGraph calleeFlows = null;
 
-        DefaultSpecialInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+        DefaultSpecialInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                         TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
             super(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
         }

@@ -35,7 +35,7 @@ import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -56,14 +56,14 @@ public class NewInstanceTypeFlow extends SourceTypeFlowBase {
     protected volatile ConcurrentMap<AnalysisContext, AnalysisObject> heapObjectsCache;
 
     /** Source flow has an immutable type state. */
-    protected final AnalysisType type;
+    protected final BaseAnalysisType type;
     protected final BytecodeLocation allocationSite;
 
-    public NewInstanceTypeFlow(ValueNode node, AnalysisType type, BytecodeLocation allocationLabel) {
+    public NewInstanceTypeFlow(ValueNode node, BaseAnalysisType type, BytecodeLocation allocationLabel) {
         this(node, type, allocationLabel, TypeState.forNull());
     }
 
-    protected NewInstanceTypeFlow(ValueNode node, AnalysisType type, BytecodeLocation allocationLabel, TypeState typeState) {
+    protected NewInstanceTypeFlow(ValueNode node, BaseAnalysisType type, BytecodeLocation allocationLabel, TypeState typeState) {
         super(node, type, typeState);
         this.type = type;
         this.allocationSite = allocationLabel;
@@ -128,7 +128,7 @@ public class NewInstanceTypeFlow extends SourceTypeFlowBase {
         return allocationSite;
     }
 
-    public AnalysisType type() {
+    public BaseAnalysisType type() {
         return type;
     }
 

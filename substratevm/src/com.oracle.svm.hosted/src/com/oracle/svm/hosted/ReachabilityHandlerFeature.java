@@ -39,9 +39,9 @@ import org.graalvm.nativeimage.ImageSingletons;
 import org.graalvm.nativeimage.hosted.Feature;
 
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.util.UserError;
 import com.oracle.svm.core.util.VMError;
@@ -87,7 +87,7 @@ public class ReachabilityHandlerFeature implements Feature {
 
         for (Object trigger : triggers) {
             if (trigger instanceof Class) {
-                AnalysisType aType = metaAccess.lookupJavaType((Class<?>) trigger);
+                BaseAnalysisType aType = metaAccess.lookupJavaType((Class<?>) trigger);
                 triggerSet.add(triggerOnClassInitializer ? aType.getClassInitializer() : aType);
             } else if (trigger instanceof Field) {
                 triggerSet.add(metaAccess.lookupJavaField((Field) trigger));
@@ -136,8 +136,8 @@ public class ReachabilityHandlerFeature implements Feature {
 
     private static boolean isTriggered(DuringAnalysisAccessImpl access, Set<Object> triggers) {
         for (Object trigger : triggers) {
-            if (trigger instanceof AnalysisType) {
-                if (access.isReachable((AnalysisType) trigger)) {
+            if (trigger instanceof BaseAnalysisType) {
+                if (access.isReachable((BaseAnalysisType) trigger)) {
                     return true;
                 }
             } else if (trigger instanceof AnalysisField) {
@@ -167,11 +167,11 @@ public class ReachabilityHandlerFeature implements Feature {
     private void processReachable(DuringAnalysisAccessImpl access, Object callback, Set<Object> triggers) {
         Map<Object, Set<Object>> handledTriggers = triggeredHandlers.computeIfAbsent(callback, c -> new IdentityHashMap<>());
         for (Object trigger : triggers) {
-            if (trigger instanceof AnalysisType) {
-                Set<AnalysisType> newReachable = access.reachableSubtypes(((AnalysisType) trigger));
+            if (trigger instanceof BaseAnalysisType) {
+                Set<BaseAnalysisType> newReachable = access.reachableSubtypes(((BaseAnalysisType) trigger));
                 Set<Object> prevReachable = handledTriggers.computeIfAbsent(trigger, c -> new HashSet<>());
                 newReachable.removeAll(prevReachable);
-                for (AnalysisType reachable : newReachable) {
+                for (BaseAnalysisType reachable : newReachable) {
                     toSubtypeCallback(callback).accept(access, reachable.getJavaClass());
                     prevReachable.add(reachable);
                 }

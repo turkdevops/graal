@@ -34,8 +34,8 @@ import org.graalvm.collections.EconomicSet;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.ImageSingletons;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.hub.AnnotationTypeSupport;
 import com.oracle.svm.hosted.FeatureImpl.AfterRegistrationAccessImpl;
@@ -67,8 +67,8 @@ public class AnnotationTypeFeature implements Feature {
          * annotation. We need to mark arrays of all reachable annotations as in heap.
          */
         universe.getTypes().stream()
-                        .filter(AnalysisType::isAnnotation)
-                        .filter(AnalysisType::isReachable)
+                        .filter(BaseAnalysisType::isAnnotation)
+                        .filter(BaseAnalysisType::isReachable)
                         .map(type -> universe.lookup(type.getWrapped()).getArrayClass())
                         .filter(annotationArray -> !annotationArray.isInstantiated())
                         .forEach(annotationArray -> {

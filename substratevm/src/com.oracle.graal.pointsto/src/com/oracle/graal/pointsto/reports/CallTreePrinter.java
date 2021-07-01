@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import com.oracle.graal.pointsto.flow.InvokeTypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
 

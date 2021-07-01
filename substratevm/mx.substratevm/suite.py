@@ -362,11 +362,26 @@ suite = {
             "spotbugs": "false",
         },
 
+        "com.oracle.graal.analysis": {
+            "subDir": "src",
+            "sourceDirs": ["src"],
+            "dependencies": [
+                "com.oracle.svm.util",
+            ],
+            "checkstyle": "com.oracle.graal.pointsto",
+            "javaCompliance": "8+",
+            "annotationProcessors": [
+                "compiler:GRAAL_PROCESSOR",
+            ],
+            "workingSets": "SVM",
+        },
+
         "com.oracle.graal.pointsto": {
             "subDir": "src",
             "sourceDirs": ["src"],
             "dependencies": [
                 "com.oracle.svm.util",
+                "com.oracle.graal.analysis",
             ],
             "checkstyle": "com.oracle.graal.pointsto",
             "javaCompliance": "8+",
@@ -376,6 +391,7 @@ suite = {
             ],
             "workingSets": "SVM",
         },
+
         "com.oracle.svm.hosted": {
             "subDir": "src",
             "sourceDirs": ["src"],

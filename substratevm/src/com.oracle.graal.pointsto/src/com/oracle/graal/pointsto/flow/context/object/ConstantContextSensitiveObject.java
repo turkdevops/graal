@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.oracle.graal.pointsto.BigBang;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.meta.JavaConstant;
 
@@ -68,11 +68,11 @@ public class ConstantContextSensitiveObject extends ContextSensitiveAnalysisObje
      * Constructor used for the merged constant object, i.e., after the number of individual
      * constant objects for a type has reached the maximum number of recorded constants threshold.
      */
-    public ConstantContextSensitiveObject(BigBang bb, AnalysisType type) {
+    public ConstantContextSensitiveObject(BigBang bb, BaseAnalysisType type) {
         this(bb, type, null);
     }
 
-    public ConstantContextSensitiveObject(BigBang bb, AnalysisType type, JavaConstant constant) {
+    public ConstantContextSensitiveObject(BigBang bb, BaseAnalysisType type, JavaConstant constant) {
         super(bb.getUniverse(), type, AnalysisObjectKind.ConstantContextSensitive);
         assert bb.trackConcreteAnalysisObjects(type);
         this.constant = constant;

@@ -29,7 +29,7 @@ import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.ArrayElementsTypeFlow;
 import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 /**
@@ -49,7 +49,7 @@ public class AllocationContextSensitiveObject extends ContextSensitiveAnalysisOb
      * has the same type and allocation site information as the original heap object, but a specific
      * context information.
      */
-    public AllocationContextSensitiveObject(BigBang bb, AnalysisType type, BytecodeLocation allocationSite, AnalysisContext context) {
+    public AllocationContextSensitiveObject(BigBang bb, BaseAnalysisType type, BytecodeLocation allocationSite, AnalysisContext context) {
         super(bb.getUniverse(), type, AnalysisObjectKind.AllocationContextSensitive);
         assert bb.trackConcreteAnalysisObjects(type);
         this.allocationLabel = allocationSite;

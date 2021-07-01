@@ -24,8 +24,8 @@
  */
 package com.oracle.svm.hosted.analysis;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.graal.meta.SubstrateReplacements;
 import com.oracle.svm.hosted.SVMHost;
 import com.oracle.svm.hosted.substitute.AnnotationSubstitutionProcessor;

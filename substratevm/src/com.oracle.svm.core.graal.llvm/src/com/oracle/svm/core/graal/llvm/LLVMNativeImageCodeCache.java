@@ -53,10 +53,10 @@ import org.graalvm.nativeimage.Platform;
 import org.graalvm.nativeimage.Platforms;
 import org.graalvm.word.WordFactory;
 
-import com.oracle.graal.pointsto.util.CompletionExecutor;
-import com.oracle.graal.pointsto.util.CompletionExecutor.DebugContextRunnable;
-import com.oracle.graal.pointsto.util.Timer;
-import com.oracle.graal.pointsto.util.Timer.StopTimer;
+import com.oracle.graal.analysis.util.CompletionExecutor;
+import com.oracle.graal.analysis.util.CompletionExecutor.DebugContextRunnable;
+import com.oracle.graal.analysis.util.Timer;
+import com.oracle.graal.analysis.util.Timer.StopTimer;
 import com.oracle.objectfile.ObjectFile;
 import com.oracle.objectfile.ObjectFile.Element;
 import com.oracle.objectfile.SectionName;

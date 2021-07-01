@@ -33,7 +33,7 @@ import org.graalvm.compiler.nodes.graphbuilderconf.GraphBuilderContext;
 import org.graalvm.compiler.nodes.graphbuilderconf.NodePlugin;
 import org.graalvm.nativeimage.impl.clinit.ClassInitializationTracking;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
 import com.oracle.svm.core.RuntimeAssertionsSupport;
 import com.oracle.svm.util.ReflectionUtil;
 

@@ -29,15 +29,15 @@ import java.util.Collection;
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError;
 
 import jdk.vm.ci.code.BytecodePosition;
 
 public abstract class AbstractSpecialInvokeTypeFlow extends DirectInvokeTypeFlow {
 
-    protected AbstractSpecialInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    protected AbstractSpecialInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
         super(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
     }

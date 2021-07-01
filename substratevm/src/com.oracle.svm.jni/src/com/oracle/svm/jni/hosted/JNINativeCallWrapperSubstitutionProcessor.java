@@ -27,7 +27,7 @@ package com.oracle.svm.jni.hosted;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
 
 import jdk.vm.ci.meta.ResolvedJavaMethod;
 

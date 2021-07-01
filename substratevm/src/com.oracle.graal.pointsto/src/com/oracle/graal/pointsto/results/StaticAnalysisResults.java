@@ -24,7 +24,7 @@
  */
 package com.oracle.graal.pointsto.results;
 
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError;
 
 import jdk.vm.ci.meta.DeoptimizationReason;
 import jdk.vm.ci.meta.JavaMethodProfile;

@@ -28,7 +28,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalFieldProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalFieldProvider;
 import com.oracle.svm.core.meta.ReadableJavaField;
 import com.oracle.svm.core.util.VMError;
 

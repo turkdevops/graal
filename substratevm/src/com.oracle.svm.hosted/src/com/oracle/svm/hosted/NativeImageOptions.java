@@ -36,7 +36,7 @@ import org.graalvm.compiler.options.OptionValues;
 import org.graalvm.compiler.serviceprovider.GraalUnsafeAccess;
 
 import com.oracle.graal.pointsto.api.PointstoOptions;
-import com.oracle.graal.pointsto.util.CompletionExecutor;
+import com.oracle.graal.analysis.util.CompletionExecutor;
 import com.oracle.svm.core.option.APIOption;
 import com.oracle.svm.core.option.HostedOptionKey;
 import com.oracle.svm.core.option.LocatableMultiOptionValue;

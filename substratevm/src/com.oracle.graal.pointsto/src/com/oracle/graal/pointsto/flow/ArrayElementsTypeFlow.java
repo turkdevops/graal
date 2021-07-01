@@ -28,13 +28,13 @@ import static jdk.vm.ci.common.JVMCIError.shouldNotReachHere;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 /**
  * This class is used to model the elements type flow for array objects.
  */
-public class ArrayElementsTypeFlow extends TypeFlow<AnalysisType> {
+public class ArrayElementsTypeFlow extends TypeFlow<BaseAnalysisType> {
 
     /** The array object. */
     private AnalysisObject object;
@@ -49,7 +49,7 @@ public class ArrayElementsTypeFlow extends TypeFlow<AnalysisType> {
     }
 
     @Override
-    public TypeFlow<AnalysisType> copy(BigBang bb, MethodFlowsGraph methodFlows) {
+    public TypeFlow<BaseAnalysisType> copy(BigBang bb, MethodFlowsGraph methodFlows) {
         throw shouldNotReachHere("The mixed elements flow should not be cloned. Use Load/StoreFlows.");
     }
 

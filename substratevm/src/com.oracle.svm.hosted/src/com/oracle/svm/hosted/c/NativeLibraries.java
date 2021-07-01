@@ -73,8 +73,8 @@ import org.graalvm.word.UnsignedWord;
 import org.graalvm.word.WordBase;
 import org.graalvm.word.WordFactory;
 
-import com.oracle.graal.pointsto.infrastructure.WrappedElement;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.analysis.infrastructure.WrappedElement;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.OS;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.c.libc.LibCBase;
@@ -269,7 +269,7 @@ public final class NativeLibraries {
     }
 
     private ResolvedJavaType lookupAndRegisterType(Class<?> clazz) {
-        AnalysisType type = (AnalysisType) metaAccess.lookupJavaType(clazz);
+        BaseAnalysisType type = (BaseAnalysisType) metaAccess.lookupJavaType(clazz);
         type.registerAsReachable();
         return type;
     }

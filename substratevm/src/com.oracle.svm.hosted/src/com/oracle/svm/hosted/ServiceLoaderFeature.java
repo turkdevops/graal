@@ -48,8 +48,8 @@ import org.graalvm.compiler.options.OptionType;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeReflection;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.jdk.Resources;
 import com.oracle.svm.core.option.HostedOptionKey;
@@ -136,7 +136,7 @@ public class ServiceLoaderFeature implements Feature {
      * Set of types that are already processed (if they are a service interface) or are already
      * known to be not a service interface.
      */
-    private final Map<AnalysisType, Boolean> processedTypes = new ConcurrentHashMap<>();
+    private final Map<BaseAnalysisType, Boolean> processedTypes = new ConcurrentHashMap<>();
 
     /**
      * Known services and their providers declared using modules.
@@ -173,7 +173,7 @@ public class ServiceLoaderFeature implements Feature {
         DuringAnalysisAccessImpl access = (DuringAnalysisAccessImpl) a;
 
         boolean workDone = false;
-        for (AnalysisType type : access.getUniverse().getTypes()) {
+        for (BaseAnalysisType type : access.getUniverse().getTypes()) {
             if (handleType(type, access)) {
                 workDone = true;
             }
@@ -188,7 +188,7 @@ public class ServiceLoaderFeature implements Feature {
     }
 
     @SuppressWarnings("try")
-    private boolean handleType(AnalysisType type, DuringAnalysisAccessImpl access) {
+    private boolean handleType(BaseAnalysisType type, DuringAnalysisAccessImpl access) {
         if (!type.isReachable() || type.isArray()) {
             /*
              * Type is not seen as used yet by the static analysis. Note that a constant class

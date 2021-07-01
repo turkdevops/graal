@@ -35,8 +35,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.oracle.graal.pointsto.flow.InvokeTypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.annotate.Delete;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.classinitialization.EnsureClassInitializedNode;
@@ -48,7 +48,7 @@ import com.oracle.svm.hosted.substitute.SubstitutionType;
 import jdk.vm.ci.meta.ResolvedJavaType;
 
 /**
- * Keeps a type-hierarchy dependency graph for {@link AnalysisType}s from {@code universe}. Each
+ * Keeps a type-hierarchy dependency graph for {@link BaseAnalysisType}s from {@code universe}. Each
  * type carries the information if it {@link Safety#SAFE} or {@link Safety#UNSAFE} to execute during
  * native-image generation.
  *
@@ -72,8 +72,8 @@ public class TypeInitializerGraph {
         UNSAFE,
     }
 
-    private final Map<AnalysisType, Safety> types = new HashMap<>();
-    private final Map<AnalysisType, Set<AnalysisType>> dependencies = new HashMap<>();
+    private final Map<BaseAnalysisType, Safety> types = new HashMap<>();
+    private final Map<BaseAnalysisType, Set<BaseAnalysisType>> dependencies = new HashMap<>();
 
     private final Map<AnalysisMethod, Safety> methodSafety = new HashMap<>();
     private final Collection<AnalysisMethod> methods;
@@ -111,17 +111,17 @@ public class TypeInitializerGraph {
     /**
      * A type initializer is initially unsafe only if it was marked by the user as such.
      */
-    private Safety initialTypeInitializerSafety(AnalysisType t) {
+    private Safety initialTypeInitializerSafety(BaseAnalysisType t) {
         return classInitializationSupport.specifiedInitKindFor(t.getJavaClass()) == InitKind.BUILD_TIME || classInitializationSupport.canBeProvenSafe(t.getJavaClass())
                         ? Safety.SAFE
                         : Safety.UNSAFE;
     }
 
-    boolean isUnsafe(AnalysisType type) {
+    boolean isUnsafe(BaseAnalysisType type) {
         return types.get(type) == Safety.UNSAFE;
     }
 
-    public void setUnsafe(AnalysisType t) {
+    public void setUnsafe(BaseAnalysisType t) {
         types.put(t, Safety.UNSAFE);
     }
 
@@ -131,15 +131,15 @@ public class TypeInitializerGraph {
                         .reduce(false, (lhs, rhs) -> lhs || rhs);
     }
 
-    private void addInitializerDependencies(AnalysisType t) {
+    private void addInitializerDependencies(BaseAnalysisType t) {
         addInterfaceDependencies(t, t.getInterfaces());
         if (t.getSuperclass() != null) {
             addDependency(t, t.getSuperclass());
         }
     }
 
-    private void addInterfaceDependencies(AnalysisType t, AnalysisType[] interfaces) {
-        for (AnalysisType anInterface : interfaces) {
+    private void addInterfaceDependencies(BaseAnalysisType t, BaseAnalysisType[] interfaces) {
+        for (BaseAnalysisType anInterface : interfaces) {
             if (anInterface.declaresDefaultMethods()) {
                 addDependency(t, anInterface);
             }
@@ -147,7 +147,7 @@ public class TypeInitializerGraph {
         }
     }
 
-    private void addDependency(AnalysisType dependent, AnalysisType dependee) {
+    private void addDependency(BaseAnalysisType dependent, BaseAnalysisType dependee) {
         dependencies.get(dependent).add(dependee);
     }
 
@@ -182,7 +182,7 @@ public class TypeInitializerGraph {
      *
      * @return if pomotion to unsafe happened
      */
-    private boolean tryPromoteToUnsafe(AnalysisType type, Map<AnalysisMethod, Safety> safeMethods) {
+    private boolean tryPromoteToUnsafe(BaseAnalysisType type, Map<AnalysisMethod, Safety> safeMethods) {
         if (types.get(type) == Safety.UNSAFE) {
             return false;
         } else if (type.getClassInitializer() != null && safeMethods.get(type.getClassInitializer()) == Safety.UNSAFE ||
@@ -221,7 +221,7 @@ public class TypeInitializerGraph {
         return methodSafety.get(i.getTargetMethod()) == Safety.UNSAFE;
     }
 
-    private void addInitializer(AnalysisType t) {
+    private void addInitializer(BaseAnalysisType t) {
         ResolvedJavaType rt = t.getWrappedWithoutResolve();
         boolean isSubstituted = false;
         if (rt instanceof SubstitutionType) {
@@ -237,7 +237,7 @@ public class TypeInitializerGraph {
         dependencies.put(t, new HashSet<>());
     }
 
-    Set<AnalysisType> getDependencies(AnalysisType type) {
+    Set<BaseAnalysisType> getDependencies(BaseAnalysisType type) {
         return Collections.unmodifiableSet(dependencies.get(type));
     }
 

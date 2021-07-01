@@ -26,7 +26,7 @@ package com.oracle.graal.pointsto.flow;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 /**
  * Parameters for entry methods.
@@ -36,7 +36,7 @@ public class InitialParamTypeFlow extends TypeFlow<AnalysisMethod> {
     /** The position of the parameter in the method signature. */
     protected final int position;
 
-    public InitialParamTypeFlow(AnalysisMethod source, AnalysisType declaredType, int position) {
+    public InitialParamTypeFlow(AnalysisMethod source, BaseAnalysisType declaredType, int position) {
         super(source, declaredType);
         this.position = position;
     }

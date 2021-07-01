@@ -34,7 +34,7 @@ import org.graalvm.compiler.nodes.java.UnsafeCompareAndSwapNode;
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.nodes.UnsafePartitionStoreNode;
 import com.oracle.graal.pointsto.typestate.TypeState;
 import com.oracle.svm.util.UnsafePartitionKind;
@@ -57,14 +57,14 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
      * The type of the receiver object of the offset store operation. Can be approximated by Object
      * or Object[] when it cannot be infered from stamps.
      */
-    private final AnalysisType objectType;
+    private final BaseAnalysisType objectType;
 
     /** The flow of the input value. */
     private final TypeFlow<?> valueFlow;
     /** The flow of the receiver object. */
     protected TypeFlow<?> objectFlow;
 
-    public OffsetStoreTypeFlow(ValueNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
+    public OffsetStoreTypeFlow(ValueNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
         super(node.getNodeSourcePosition(), componentType);
         this.objectType = objectType;
         this.valueFlow = valueFlow;
@@ -117,7 +117,7 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
      */
     public static class StoreIndexedTypeFlow extends OffsetStoreTypeFlow {
 
-        public StoreIndexedTypeFlow(ValueNode node, AnalysisType arrayType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
+        public StoreIndexedTypeFlow(ValueNode node, BaseAnalysisType arrayType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
             super(node, arrayType, arrayType.getComponentType(), objectFlow, valueFlow);
         }
 
@@ -168,7 +168,7 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
 
     public abstract static class AbstractUnsafeStoreTypeFlow extends OffsetStoreTypeFlow {
 
-        AbstractUnsafeStoreTypeFlow(ValueNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
+        AbstractUnsafeStoreTypeFlow(ValueNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
             super(node, objectType, componentType, objectFlow, valueFlow);
         }
 
@@ -228,7 +228,7 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
             TypeState objectState = objectFlow.getState();
             /* Iterate over the receiver objects. */
             for (AnalysisObject object : objectState.objects()) {
-                AnalysisType objectType = object.type();
+                BaseAnalysisType objectType = object.type();
                 if (objectType.isArray()) {
                     if (object.isPrimitiveArray() || object.isEmptyObjectArrayConstant(bb)) {
                         /* Cannot write to a primitive array or an empty array constant. */
@@ -254,7 +254,7 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
      */
     public static class UnsafeStoreTypeFlow extends AbstractUnsafeStoreTypeFlow {
 
-        public UnsafeStoreTypeFlow(RawStoreNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
+        public UnsafeStoreTypeFlow(RawStoreNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
             super(node, objectType, componentType, objectFlow, valueFlow);
         }
 
@@ -278,7 +278,7 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
      */
     public static class CompareAndSwapTypeFlow extends AbstractUnsafeStoreTypeFlow {
 
-        public CompareAndSwapTypeFlow(UnsafeCompareAndSwapNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
+        public CompareAndSwapTypeFlow(UnsafeCompareAndSwapNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
             super(node, objectType, componentType, objectFlow, valueFlow);
         }
 
@@ -302,7 +302,7 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
      */
     public static class AtomicWriteTypeFlow extends AbstractUnsafeStoreTypeFlow {
 
-        public AtomicWriteTypeFlow(ValueNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
+        public AtomicWriteTypeFlow(ValueNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
             super(node, objectType, componentType, objectFlow, valueFlow);
         }
 
@@ -324,10 +324,10 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
     public static class UnsafePartitionStoreTypeFlow extends AbstractUnsafeStoreTypeFlow {
 
         protected final UnsafePartitionKind partitionKind;
-        protected final AnalysisType partitionType;
+        protected final BaseAnalysisType partitionType;
 
-        public UnsafePartitionStoreTypeFlow(UnsafePartitionStoreNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow,
-                        UnsafePartitionKind partitionKind, AnalysisType partitionType) {
+        public UnsafePartitionStoreTypeFlow(UnsafePartitionStoreNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow,
+                        UnsafePartitionKind partitionKind, BaseAnalysisType partitionType) {
             super(node, objectType, componentType, objectFlow, valueFlow);
             this.partitionKind = partitionKind;
             this.partitionType = partitionType;
@@ -371,7 +371,7 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
 
             /* Iterate over the receiver objects. */
             for (AnalysisObject object : objectState.objects()) {
-                AnalysisType objectType = object.type();
+                BaseAnalysisType objectType = object.type();
                 assert !objectType.isArray();
 
                 handleUnsafeAccessedFields(bb, objectType.unsafeAccessedFields(partitionKind), object);
@@ -389,7 +389,7 @@ public abstract class OffsetStoreTypeFlow extends TypeFlow<BytecodePosition> {
      */
     public static class JavaWriteTypeFlow extends AbstractUnsafeStoreTypeFlow {
 
-        public JavaWriteTypeFlow(JavaWriteNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
+        public JavaWriteTypeFlow(JavaWriteNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, TypeFlow<?> valueFlow) {
             super(node, objectType, componentType, objectFlow, valueFlow);
         }
 

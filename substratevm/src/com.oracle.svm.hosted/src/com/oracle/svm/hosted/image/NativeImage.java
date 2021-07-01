@@ -61,8 +61,8 @@ import org.graalvm.nativeimage.ImageSingletons;
 import org.graalvm.nativeimage.c.function.CFunctionPointer;
 
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.util.Timer;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.util.Timer;
 import com.oracle.objectfile.BasicProgbitsSectionImpl;
 import com.oracle.objectfile.BuildDependency;
 import com.oracle.objectfile.LayoutDecision;
@@ -251,7 +251,7 @@ public abstract class NativeImage extends AbstractImage {
         }
 
         /* check if enclosing classes are annotated */
-        AnalysisType enclosingType = entryPoint.getDeclaringClass();
+        BaseAnalysisType enclosingType = entryPoint.getDeclaringClass();
         while (enclosingType != null) {
             CHeader enclosing = enclosingType.getDeclaredAnnotation(CHeader.class);
             if (enclosing != null) {

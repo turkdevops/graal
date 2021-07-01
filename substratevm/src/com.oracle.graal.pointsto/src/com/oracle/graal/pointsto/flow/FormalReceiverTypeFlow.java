@@ -28,7 +28,7 @@ import org.graalvm.compiler.nodes.ParameterNode;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 /**
@@ -36,7 +36,7 @@ import com.oracle.graal.pointsto.typestate.TypeState;
  */
 public class FormalReceiverTypeFlow extends FormalParamTypeFlow {
 
-    public FormalReceiverTypeFlow(ParameterNode source, AnalysisType declaredType, AnalysisMethod method) {
+    public FormalReceiverTypeFlow(ParameterNode source, BaseAnalysisType declaredType, AnalysisMethod method) {
         super(source, declaredType, method, 0);
     }
 

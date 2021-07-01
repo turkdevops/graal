@@ -36,8 +36,8 @@ import org.graalvm.compiler.debug.DebugContext;
 import org.graalvm.compiler.nodes.StructuredGraph;
 
 import com.oracle.graal.pointsto.infrastructure.GraphProvider;
-import com.oracle.graal.pointsto.infrastructure.OriginalMethodProvider;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.OriginalMethodProvider;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.annotate.AnnotateOriginal;
 import com.oracle.svm.core.util.VMError;
 import com.oracle.svm.hosted.c.GraalAccess;

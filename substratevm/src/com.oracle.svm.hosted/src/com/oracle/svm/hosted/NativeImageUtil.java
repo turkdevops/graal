@@ -25,7 +25,7 @@
 package com.oracle.svm.hosted;
 
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.hosted.meta.HostedMethod;
 import com.oracle.svm.hosted.meta.HostedType;
 
@@ -47,8 +47,8 @@ public class NativeImageUtil {
     public static ResolvedJavaType toOriginal(ResolvedJavaType type) {
         if (type instanceof HostedType) {
             return ((HostedType) type).getWrapped().getWrapped();
-        } else if (type instanceof AnalysisType) {
-            return ((AnalysisType) type).getWrapped();
+        } else if (type instanceof BaseAnalysisType) {
+            return ((BaseAnalysisType) type).getWrapped();
         } else {
             return type;
         }

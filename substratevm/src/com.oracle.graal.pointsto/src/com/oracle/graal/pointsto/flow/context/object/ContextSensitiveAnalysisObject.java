@@ -37,8 +37,8 @@ import com.oracle.graal.pointsto.flow.FieldFilterTypeFlow;
 import com.oracle.graal.pointsto.flow.FieldTypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.graal.pointsto.typestore.FieldTypeStore;
 import com.oracle.graal.pointsto.typestore.UnifiedFieldTypeStore;
 
@@ -46,7 +46,7 @@ public class ContextSensitiveAnalysisObject extends AnalysisObject {
 
     private List<AnalysisObject> referencedObjects;
 
-    public ContextSensitiveAnalysisObject(AnalysisUniverse universe, AnalysisType type, AnalysisObjectKind kind) {
+    public ContextSensitiveAnalysisObject(AnalysisUniverse universe, BaseAnalysisType type, AnalysisObjectKind kind) {
         super(universe, type, kind);
         assert PointstoOptions.AllocationSiteSensitiveHeap.getValue(universe.hostVM().options());
     }

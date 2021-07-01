@@ -30,14 +30,14 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.oracle.graal.pointsto.BigBang;
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import com.oracle.graal.pointsto.flow.InstanceOfTypeFlow;
 import com.oracle.graal.pointsto.flow.MethodFlowsGraph;
 import com.oracle.graal.pointsto.flow.MethodTypeFlow;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 public final class StatisticsPrinter {
@@ -111,7 +111,7 @@ public final class StatisticsPrinter {
     private static int[] getNumReachableTypes(StaticAnalysisEngine analysis) {
         int reachable = 0;
         int appReachable = 0;
-        for (AnalysisType type : analysis.getUniverse().getTypes()) {
+        for (BaseAnalysisType type : analysis.getUniverse().getTypes()) {
             if (type.isInstantiated()) {
                 reachable++;
                 if (!isRuntimeLibraryType(type)) {
@@ -191,7 +191,7 @@ public final class StatisticsPrinter {
         return new long[]{totalFilters, totalRemovableFilters, appTotalFilters, appTotalRemovableFilters};
     }
 
-    public static boolean isRuntimeLibraryType(AnalysisType type) {
+    public static boolean isRuntimeLibraryType(BaseAnalysisType type) {
         String name = type.getName();
         return name.startsWith("Ljava/") ||
                         name.startsWith("Ljavax/") ||

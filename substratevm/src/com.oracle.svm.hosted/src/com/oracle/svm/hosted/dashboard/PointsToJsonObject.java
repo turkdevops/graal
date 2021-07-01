@@ -76,7 +76,7 @@ import com.oracle.graal.pointsto.flow.StoreFieldTypeFlow;
 import com.oracle.graal.pointsto.flow.TypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 import com.oracle.svm.core.util.VMError;
 import com.oracle.svm.hosted.FeatureImpl;
@@ -830,14 +830,14 @@ class PointsToJsonObject extends JsonObject {
 
     /**
      * Serialize a given {@link TypeState} into a JSON array containing the formatted class name of
-     * {@link AnalysisType} in the TypeState.
+     * {@link BaseAnalysisType} in the TypeState.
      *
      * @param typeState the TypeState to be serialized.
      * @return a list of the formatted class names of the classes included in the given TypeState.
      */
     private static ArrayList<String> serializeTypeState(TypeState typeState) {
         ArrayList<String> types = new ArrayList<>();
-        for (AnalysisType type : typeState.types()) {
+        for (BaseAnalysisType type : typeState.types()) {
             types.add(type.toJavaName());
         }
         return types;

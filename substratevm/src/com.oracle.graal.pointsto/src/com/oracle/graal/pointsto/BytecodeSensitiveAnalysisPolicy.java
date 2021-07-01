@@ -46,8 +46,8 @@ import com.oracle.graal.pointsto.flow.context.object.AllocationContextSensitiveO
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.graal.pointsto.typestate.TypeState;
 import com.oracle.graal.pointsto.typestate.TypeState.TypesObjectsIterator;
 import com.oracle.graal.pointsto.typestore.ArrayElementsTypeStore;
@@ -109,12 +109,12 @@ public class BytecodeSensitiveAnalysisPolicy extends AnalysisPolicy {
     }
 
     @Override
-    public boolean isContextSensitiveAllocation(BigBang bb, AnalysisType type, AnalysisContext allocationContext) {
+    public boolean isContextSensitiveAllocation(BigBang bb, BaseAnalysisType type, AnalysisContext allocationContext) {
         return bb.trackConcreteAnalysisObjects(type);
     }
 
     @Override
-    public AnalysisObject createHeapObject(BigBang bb, AnalysisType type, BytecodeLocation allocationSite, AnalysisContext allocationContext) {
+    public AnalysisObject createHeapObject(BigBang bb, BaseAnalysisType type, BytecodeLocation allocationSite, AnalysisContext allocationContext) {
         assert PointstoOptions.AllocationSiteSensitiveHeap.getValue(options);
         if (isContextSensitiveAllocation(bb, type, allocationContext)) {
             return new AllocationContextSensitiveObject(bb, type, allocationSite, allocationContext);
@@ -124,7 +124,7 @@ public class BytecodeSensitiveAnalysisPolicy extends AnalysisPolicy {
     }
 
     @Override
-    public AnalysisObject createConstantObject(BigBang bb, JavaConstant constant, AnalysisType exactType) {
+    public AnalysisObject createConstantObject(BigBang bb, JavaConstant constant, BaseAnalysisType exactType) {
         /* Get the analysis object wrapping the JavaConstant. */
         if (bb.trackConcreteAnalysisObjects(exactType)) {
             return exactType.getCachedConstantObject(bb, constant);
@@ -175,13 +175,13 @@ public class BytecodeSensitiveAnalysisPolicy extends AnalysisPolicy {
     }
 
     @Override
-    public AbstractVirtualInvokeTypeFlow createVirtualInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    public AbstractVirtualInvokeTypeFlow createVirtualInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
         return new BytecodeSensitiveVirtualInvokeTypeFlow(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
     }
 
     @Override
-    public AbstractSpecialInvokeTypeFlow createSpecialInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    public AbstractSpecialInvokeTypeFlow createSpecialInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
         return new BytecodeSensitiveSpecialInvokeTypeFlow(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
     }
@@ -203,7 +203,7 @@ public class BytecodeSensitiveAnalysisPolicy extends AnalysisPolicy {
         private final ConcurrentMap<MethodFlowsGraph, Object> calleesFlows;
         private final AnalysisContext callerContext;
 
-        protected BytecodeSensitiveVirtualInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+        protected BytecodeSensitiveVirtualInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                         TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
             super(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
             calleesFlows = null;
@@ -235,7 +235,7 @@ public class BytecodeSensitiveAnalysisPolicy extends AnalysisPolicy {
             /* Use the tandem types - objects iterator. */
             TypesObjectsIterator toi = receiverState.getTypesObjectsIterator();
             while (toi.hasNextType()) {
-                AnalysisType type = toi.nextType();
+                BaseAnalysisType type = toi.nextType();
 
                 AnalysisMethod method = type.resolveConcreteMethod(getTargetMethod());
                 if (method == null || Modifier.isAbstract(method.getModifiers())) {
@@ -284,7 +284,7 @@ public class BytecodeSensitiveAnalysisPolicy extends AnalysisPolicy {
          */
         private ConcurrentMap<MethodFlowsGraph, Object> calleesFlows;
 
-        BytecodeSensitiveSpecialInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+        BytecodeSensitiveSpecialInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                         TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
             super(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
         }

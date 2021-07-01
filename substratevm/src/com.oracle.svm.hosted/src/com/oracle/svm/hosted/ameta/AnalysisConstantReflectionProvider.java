@@ -34,9 +34,9 @@ import org.graalvm.nativeimage.Platforms;
 import org.graalvm.word.WordBase;
 
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
+import com.oracle.graal.analysis.util.AnalysisError;
 import com.oracle.svm.core.RuntimeAssertionsSupport;
 import com.oracle.svm.core.annotate.InjectAccessors;
 import com.oracle.svm.core.graal.meta.SharedConstantReflectionProvider;
@@ -286,7 +286,7 @@ public class AnalysisConstantReflectionProvider extends SharedConstantReflection
     protected static void registerAsReachable(SVMHost hostVM, DynamicHub dynamicHub) {
         assert dynamicHub != null;
         /* Make sure that the DynamicHub of this type ends up in the native image. */
-        AnalysisType valueType = hostVM.lookupType(dynamicHub);
+        BaseAnalysisType valueType = hostVM.lookupType(dynamicHub);
         valueType.registerAsReachable();
     }
 

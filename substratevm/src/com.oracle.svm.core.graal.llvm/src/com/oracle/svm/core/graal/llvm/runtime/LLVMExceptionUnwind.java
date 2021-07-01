@@ -42,7 +42,7 @@ import org.graalvm.word.Pointer;
 import org.graalvm.word.PointerBase;
 import org.graalvm.word.WordFactory;
 
-import com.oracle.graal.pointsto.infrastructure.UniverseMetaAccess;
+import com.oracle.graal.analysis.infrastructure.UniverseMetaAccess;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.annotate.Uninterruptible;
 import com.oracle.svm.core.c.function.CEntryPointOptions;

@@ -45,7 +45,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.BiConsumer;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import org.graalvm.compiler.core.common.spi.ForeignCallDescriptor;
 import org.graalvm.compiler.core.common.spi.ForeignCallsProvider;
 import org.graalvm.compiler.debug.MethodFilter;
@@ -69,14 +69,14 @@ import org.graalvm.util.GuardedAnnotationAccess;
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.api.HostVM;
 import com.oracle.graal.pointsto.api.PointstoOptions;
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 import com.oracle.graal.pointsto.flow.AnalysisParsedGraph;
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.graal.pointsto.phases.InlineBeforeAnalysisPolicy;
 import com.oracle.svm.core.RuntimeAssertionsSupport;
 import com.oracle.svm.core.SubstrateOptions;
@@ -120,10 +120,10 @@ import jdk.vm.ci.meta.ResolvedJavaMethod;
 import jdk.vm.ci.meta.ResolvedJavaType;
 
 public class SVMHost implements HostVM {
-    private final ConcurrentHashMap<AnalysisType, DynamicHub> typeToHub = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<DynamicHub, AnalysisType> hubToType = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<BaseAnalysisType, DynamicHub> typeToHub = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<DynamicHub, BaseAnalysisType> hubToType = new ConcurrentHashMap<>();
 
-    private final Map<String, EnumSet<AnalysisType.UsageKind>> forbiddenTypes;
+    private final Map<String, EnumSet<BaseAnalysisType.UsageKind>> forbiddenTypes;
 
     private final OptionValues options;
     private final ForkJoinPool executor;
@@ -145,7 +145,7 @@ public class SVMHost implements HostVM {
      */
     private final ConcurrentMap<AnalysisMethod, Boolean> containsStackValueNode = new ConcurrentHashMap<>();
     private final ConcurrentMap<AnalysisMethod, Boolean> classInitializerSideEffect = new ConcurrentHashMap<>();
-    private final ConcurrentMap<AnalysisMethod, Set<AnalysisType>> initializedClasses = new ConcurrentHashMap<>();
+    private final ConcurrentMap<AnalysisMethod, Set<BaseAnalysisType>> initializedClasses = new ConcurrentHashMap<>();
     private final ConcurrentMap<AnalysisMethod, Boolean> analysisTrivialMethods = new ConcurrentHashMap<>();
 
     private static final Method getNestHostMethod = JavaVersionUtil.JAVA_SPEC >= 11 ? ReflectionUtil.lookupMethod(Class.class, "getNestHost") : null;
@@ -162,19 +162,19 @@ public class SVMHost implements HostVM {
         this.automaticSubstitutions = automaticSubstitutions;
     }
 
-    private static Map<String, EnumSet<AnalysisType.UsageKind>> setupForbiddenTypes(OptionValues options) {
+    private static Map<String, EnumSet<BaseAnalysisType.UsageKind>> setupForbiddenTypes(OptionValues options) {
         List<String> forbiddenTypesOptionValues = SubstrateOptions.ReportAnalysisForbiddenType.getValue(options).values();
-        Map<String, EnumSet<AnalysisType.UsageKind>> forbiddenTypes = new HashMap<>();
+        Map<String, EnumSet<BaseAnalysisType.UsageKind>> forbiddenTypes = new HashMap<>();
         for (String forbiddenTypesOptionValue : forbiddenTypesOptionValues) {
             String[] typeNameUsageKind = forbiddenTypesOptionValue.split(":", 2);
-            EnumSet<AnalysisType.UsageKind> usageKinds;
+            EnumSet<BaseAnalysisType.UsageKind> usageKinds;
             if (typeNameUsageKind.length == 1) {
-                usageKinds = EnumSet.allOf(AnalysisType.UsageKind.class);
+                usageKinds = EnumSet.allOf(BaseAnalysisType.UsageKind.class);
             } else {
-                usageKinds = EnumSet.noneOf(AnalysisType.UsageKind.class);
+                usageKinds = EnumSet.noneOf(BaseAnalysisType.UsageKind.class);
                 String[] usageKindValues = typeNameUsageKind[1].split(",");
                 for (String usageKindValue : usageKindValues) {
-                    usageKinds.add(AnalysisType.UsageKind.valueOf(usageKindValue));
+                    usageKinds.add(BaseAnalysisType.UsageKind.valueOf(usageKindValue));
                 }
 
             }
@@ -184,7 +184,7 @@ public class SVMHost implements HostVM {
     }
 
     @Override
-    public void checkForbidden(AnalysisType type, AnalysisType.UsageKind kind) {
+    public void checkForbidden(BaseAnalysisType type, BaseAnalysisType.UsageKind kind) {
         if (forbiddenTypes == null) {
             return;
         }
@@ -196,8 +196,8 @@ public class SVMHost implements HostVM {
          * We do not check the interface hierarchy for now, although it would be possible. But it
          * seems less likely that someone registers an interface as forbidden.
          */
-        for (AnalysisType cur = type; cur != null; cur = cur.getSuperclass()) {
-            EnumSet<AnalysisType.UsageKind> forbiddenType = forbiddenTypes.get(cur.getWrapped().toJavaName());
+        for (BaseAnalysisType cur = type; cur != null; cur = cur.getSuperclass()) {
+            EnumSet<BaseAnalysisType.UsageKind> forbiddenType = forbiddenTypes.get(cur.getWrapped().toJavaName());
             if (forbiddenType != null && forbiddenType.contains(kind)) {
                 throw new UnsupportedFeatureException("Forbidden type " + cur.getWrapped().toJavaName() +
                                 (cur.equals(type) ? "" : " (superclass of " + type.getWrapped().toJavaName() + ")") +
@@ -257,7 +257,7 @@ public class SVMHost implements HostVM {
     }
 
     @Override
-    public void registerType(AnalysisType analysisType) {
+    public void registerType(BaseAnalysisType analysisType) {
 
         DynamicHub hub = createHub(analysisType);
         /* Register the hub->type and type->hub mappings. */
@@ -269,7 +269,7 @@ public class SVMHost implements HostVM {
     }
 
     @Override
-    public void initializeType(AnalysisType analysisType) {
+    public void initializeType(BaseAnalysisType analysisType) {
         if (!analysisType.isReachable()) {
             throw VMError.shouldNotReachHere("Registering and initializing a type that was not yet marked as reachable: " + analysisType);
         }
@@ -304,7 +304,7 @@ public class SVMHost implements HostVM {
     }
 
     @Override
-    public boolean isInitialized(AnalysisType type) {
+    public boolean isInitialized(BaseAnalysisType type) {
         boolean shouldInitializeAtRuntime = classInitializationSupport.shouldInitializeAtRuntime(type);
         assert shouldInitializeAtRuntime || type.getWrapped().isInitialized() : "Types that are not marked for runtime initializations must have been initialized: " + type;
 
@@ -355,9 +355,9 @@ public class SVMHost implements HostVM {
     }
 
     public DynamicHub dynamicHub(ResolvedJavaType type) {
-        AnalysisType aType;
-        if (type instanceof AnalysisType) {
-            aType = (AnalysisType) type;
+        BaseAnalysisType aType;
+        if (type instanceof BaseAnalysisType) {
+            aType = (BaseAnalysisType) type;
         } else if (type instanceof HostedType) {
             aType = ((HostedType) type).getWrapped();
         } else {
@@ -367,12 +367,12 @@ public class SVMHost implements HostVM {
         return typeToHub.get(aType);
     }
 
-    public AnalysisType lookupType(DynamicHub hub) {
+    public BaseAnalysisType lookupType(DynamicHub hub) {
         assert hub != null : "Hub must not be null";
         return hubToType.get(hub);
     }
 
-    private DynamicHub createHub(AnalysisType type) {
+    private DynamicHub createHub(BaseAnalysisType type) {
         DynamicHub superHub = null;
         if ((type.isInstanceClass() && type.getSuperclass() != null) || type.isArray()) {
             superHub = dynamicHub(type.getSuperclass());
@@ -480,7 +480,7 @@ public class SVMHost implements HostVM {
     }
 
     public void notifyClassReachabilityListener(AnalysisUniverse universe, DuringAnalysisAccess access) {
-        for (AnalysisType type : universe.getTypes()) {
+        for (BaseAnalysisType type : universe.getTypes()) {
             if (type.isReachable() && !type.getReachabilityListenerNotified()) {
                 type.setReachabilityListenerNotified(true);
 
@@ -499,7 +499,7 @@ public class SVMHost implements HostVM {
         return automaticSubstitutions;
     }
 
-    private static HubType computeHubType(AnalysisType type) {
+    private static HubType computeHubType(BaseAnalysisType type) {
         if (type.isArray()) {
             if (type.getComponentType().isPrimitive() || type.getComponentType().isWordType()) {
                 return HubType.TypeArray;
@@ -519,7 +519,7 @@ public class SVMHost implements HostVM {
         }
     }
 
-    private static ReferenceType computeReferenceType(AnalysisType type) {
+    private static ReferenceType computeReferenceType(BaseAnalysisType type) {
         Class<?> clazz = type.getJavaClass();
         if (PhantomReference.class.isAssignableFrom(clazz)) {
             return ReferenceType.Phantom;
@@ -658,7 +658,7 @@ public class SVMHost implements HostVM {
         } else if (n instanceof EnsureClassInitializedNode) {
             Constant constantHub = ((EnsureClassInitializedNode) n).getHub().asConstant();
             if (constantHub != null) {
-                AnalysisType type = (AnalysisType) bb.getProviders().getConstantReflection().asJavaType(constantHub);
+                BaseAnalysisType type = (BaseAnalysisType) bb.getProviders().getConstantReflection().asJavaType(constantHub);
                 initializedClasses.computeIfAbsent(method, k -> new HashSet<>()).add(type);
             } else {
                 classInitializerSideEffect.put(method, true);
@@ -685,8 +685,8 @@ public class SVMHost implements HostVM {
         return classInitializerSideEffect.containsKey(method);
     }
 
-    public Set<AnalysisType> getInitializedClasses(AnalysisMethod method) {
-        Set<AnalysisType> result = initializedClasses.get(method);
+    public Set<BaseAnalysisType> getInitializedClasses(AnalysisMethod method) {
+        Set<BaseAnalysisType> result = initializedClasses.get(method);
         if (result != null) {
             return result;
         } else {

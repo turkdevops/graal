@@ -34,7 +34,7 @@ import org.graalvm.compiler.nodes.ValueNode;
 import org.graalvm.nativeimage.c.function.InvokeCFunctionPointer;
 
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.thread.VMThreads.StatusSupport;
 import com.oracle.svm.hosted.c.NativeLibraries;
 import com.oracle.svm.hosted.phases.HostedGraphKit;

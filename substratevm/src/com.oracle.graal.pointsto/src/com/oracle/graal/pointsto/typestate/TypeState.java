@@ -34,12 +34,12 @@ import java.util.stream.StreamSupport;
 
 import com.oracle.graal.pointsto.AnalysisPolicy;
 import com.oracle.graal.pointsto.BigBang;
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.MultiTypeState.Range;
 import com.oracle.graal.pointsto.util.BitArrayUtils;
 
@@ -74,23 +74,23 @@ public abstract class TypeState {
     /**
      * If this type state has a single, exact type it returns that type, otherwise it returns null.
      */
-    public abstract AnalysisType exactType();
+    public abstract BaseAnalysisType exactType();
 
     /** Provides an iterator over the types. */
-    protected abstract Iterator<AnalysisType> typesIterator();
+    protected abstract Iterator<BaseAnalysisType> typesIterator();
 
     /** Provides an iterable for the types for easy "for-each loop" iteration. */
-    public Iterable<AnalysisType> types() {
+    public Iterable<BaseAnalysisType> types() {
         return this::typesIterator;
     }
 
     /** Provides a stream for the types. */
-    public Stream<AnalysisType> typesStream() {
+    public Stream<BaseAnalysisType> typesStream() {
         return StreamSupport.stream(types().spliterator(), false);
     }
 
     /** Returns true if this type state contains the type, otherwise it returns false. */
-    public abstract boolean containsType(AnalysisType exactType);
+    public abstract boolean containsType(BaseAnalysisType exactType);
 
     /* Objects accessing methods. */
 
@@ -101,19 +101,19 @@ public abstract class TypeState {
     public abstract AnalysisObject[] objects();
 
     /** Returns the objects corresponding to the type. It copies those objects to a new array. */
-    public abstract AnalysisObject[] objectsArray(AnalysisType type);
+    public abstract AnalysisObject[] objectsArray(BaseAnalysisType type);
 
     /**
      * Provides an iterator for the objects corresponding to the type. The objects are returned from
      * the internal objects array and are not materialized to a different data structure.
      */
-    protected abstract Iterator<AnalysisObject> objectsIterator(AnalysisType type);
+    protected abstract Iterator<AnalysisObject> objectsIterator(BaseAnalysisType type);
 
     /**
      * Provides an iterable for the objects corresponding to the type. The objects are returned from
      * the internal objects array and are not materialized to a different data structure.
      */
-    public Iterable<AnalysisObject> objects(AnalysisType type) {
+    public Iterable<AnalysisObject> objects(BaseAnalysisType type) {
         return () -> objectsIterator(type);
     }
 
@@ -180,12 +180,12 @@ public abstract class TypeState {
         }
 
         /** Returns true if there are more objects of the current type. */
-        public boolean hasNextObject(AnalysisType type) {
+        public boolean hasNextObject(BaseAnalysisType type) {
             return objectIdx < state.objects().length && state.objects()[objectIdx].getTypeId() == type.getId();
         }
 
         /** Gets the next type. */
-        public AnalysisType nextType() {
+        public BaseAnalysisType nextType() {
             /* Check that there is a next type. */
             assert hasNextType();
             /* Increment the type index. */
@@ -195,7 +195,7 @@ public abstract class TypeState {
         }
 
         /** Gets the next object. */
-        public AnalysisObject nextObject(AnalysisType type) {
+        public AnalysisObject nextObject(BaseAnalysisType type) {
             /* Check that there is a next object of the desired type. */
             assert hasNextObject(type);
             /* Return the next object and increment objectIdx. */
@@ -238,11 +238,11 @@ public abstract class TypeState {
      * MutiTypeState, e.g. for transferring the state from a virtual invoke type flow to the formal
      * receiver flow of a specific callee resolved on the specified type.
      */
-    public abstract TypeState exactTypeState(BigBang bb, AnalysisType exactType);
+    public abstract TypeState exactTypeState(BigBang bb, BaseAnalysisType exactType);
 
-    public boolean verifyDeclaredType(AnalysisType declaredType) {
+    public boolean verifyDeclaredType(BaseAnalysisType declaredType) {
         if (declaredType != null) {
-            for (AnalysisType e : types()) {
+            for (BaseAnalysisType e : types()) {
                 if (!declaredType.isAssignableFrom(e)) {
                     return false;
                 }
@@ -293,7 +293,7 @@ public abstract class TypeState {
     }
 
     /** Wraps the analysis object corresponding to a JavaConstant into a non-null type state. */
-    public static TypeState forConstant(BigBang bb, JavaConstant constant, AnalysisType exactType) {
+    public static TypeState forConstant(BigBang bb, JavaConstant constant, BaseAnalysisType exactType) {
         assert !constant.isNull();
         assert exactType.isArray() || (exactType.isInstanceClass() && !Modifier.isAbstract(exactType.getModifiers())) : exactType;
 
@@ -302,7 +302,7 @@ public abstract class TypeState {
     }
 
     /** Wraps the analysis object corresponding to an allocation site into a non-null type state. */
-    public static TypeState forAllocation(BigBang bb, BytecodeLocation allocationLabel, AnalysisType exactType) {
+    public static TypeState forAllocation(BigBang bb, BytecodeLocation allocationLabel, BaseAnalysisType exactType) {
         return forAllocation(bb, allocationLabel, exactType, bb.contextPolicy().emptyContext());
     }
 
@@ -310,7 +310,7 @@ public abstract class TypeState {
      * Wraps the analysis object corresponding to an allocation site for a given context into a
      * non-null type state.
      */
-    public static TypeState forAllocation(BigBang bb, BytecodeLocation allocationSite, AnalysisType objectType, AnalysisContext allocationContext) {
+    public static TypeState forAllocation(BigBang bb, BytecodeLocation allocationSite, BaseAnalysisType objectType, AnalysisContext allocationContext) {
         assert objectType.isArray() || (objectType.isInstanceClass() && !Modifier.isAbstract(objectType.getModifiers())) : objectType;
 
         AnalysisObject allocationObject = bb.analysisPolicy().createHeapObject(bb, objectType, allocationSite, allocationContext);
@@ -321,11 +321,11 @@ public abstract class TypeState {
      * Wraps the analysis object corresponding to a clone site for a given context into a non-null
      * type state.
      */
-    public static TypeState forClone(BigBang bb, BytecodeLocation cloneSite, AnalysisType type, AnalysisContext allocationContext) {
+    public static TypeState forClone(BigBang bb, BytecodeLocation cloneSite, BaseAnalysisType type, AnalysisContext allocationContext) {
         return forAllocation(bb, cloneSite, type, allocationContext);
     }
 
-    public static TypeState forExactType(BigBang bb, AnalysisType exactType, boolean canBeNull) {
+    public static TypeState forExactType(BigBang bb, BaseAnalysisType exactType, boolean canBeNull) {
         return forExactType(bb, exactType.getContextInsensitiveAnalysisObject(), canBeNull);
     }
 
@@ -339,7 +339,7 @@ public abstract class TypeState {
         if (numTypes == 0) {
             return forEmpty().forCanBeNull(bb, canBeNull);
         } else if (numTypes == 1) {
-            AnalysisType type = bb.getUniverse().getType(exactTypes.nextSetBit(0));
+            BaseAnalysisType type = bb.getUniverse().getType(exactTypes.nextSetBit(0));
             AnalysisObject analysisObject = type.getContextInsensitiveAnalysisObject();
             return new SingleTypeState(bb, canBeNull, bb.analysisPolicy().makeProperties(bb, analysisObject), analysisObject);
         } else {
@@ -370,7 +370,7 @@ public abstract class TypeState {
             return state;
         } else {
             if (state.isSingleTypeState()) {
-                AnalysisType type = state.exactType();
+                BaseAnalysisType type = state.exactType();
                 AnalysisObject analysisObject = type.getContextInsensitiveAnalysisObject();
                 return new SingleTypeState(bb, state.canBeNull(), bb.analysisPolicy().makeProperties(bb, analysisObject), analysisObject);
             } else {
@@ -378,7 +378,7 @@ public abstract class TypeState {
                 AnalysisObject[] objectsArray = new AnalysisObject[multiState.typesCount()];
 
                 int i = 0;
-                for (AnalysisType type : multiState.types()) {
+                for (BaseAnalysisType type : multiState.types()) {
                     objectsArray[i++] = type.getContextInsensitiveAnalysisObject();
                 }
                 /*
@@ -1378,7 +1378,7 @@ final class EmptyTypeState extends TypeState {
     }
 
     @Override
-    public AnalysisType exactType() {
+    public BaseAnalysisType exactType() {
         return null;
     }
 
@@ -1388,22 +1388,22 @@ final class EmptyTypeState extends TypeState {
     }
 
     @Override
-    public Iterator<AnalysisType> typesIterator() {
+    public Iterator<BaseAnalysisType> typesIterator() {
         return Collections.emptyIterator();
     }
 
     @Override
-    public AnalysisObject[] objectsArray(AnalysisType type) {
+    public AnalysisObject[] objectsArray(BaseAnalysisType type) {
         return AnalysisObject.EMPTY_ARRAY;
     }
 
     @Override
-    public Iterator<AnalysisObject> objectsIterator(AnalysisType type) {
+    public Iterator<AnalysisObject> objectsIterator(BaseAnalysisType type) {
         return Collections.emptyIterator();
     }
 
     @Override
-    public boolean containsType(AnalysisType exactType) {
+    public boolean containsType(BaseAnalysisType exactType) {
         return false;
     }
 
@@ -1413,7 +1413,7 @@ final class EmptyTypeState extends TypeState {
     }
 
     @Override
-    public TypeState exactTypeState(BigBang bb, AnalysisType exactType) {
+    public TypeState exactTypeState(BigBang bb, BaseAnalysisType exactType) {
         return this;
     }
 
@@ -1469,7 +1469,7 @@ final class NullTypeState extends TypeState {
     }
 
     @Override
-    public AnalysisType exactType() {
+    public BaseAnalysisType exactType() {
         return null;
     }
 
@@ -1479,22 +1479,22 @@ final class NullTypeState extends TypeState {
     }
 
     @Override
-    public Iterator<AnalysisType> typesIterator() {
+    public Iterator<BaseAnalysisType> typesIterator() {
         return Collections.emptyIterator();
     }
 
     @Override
-    public Iterator<AnalysisObject> objectsIterator(AnalysisType type) {
+    public Iterator<AnalysisObject> objectsIterator(BaseAnalysisType type) {
         return Collections.emptyIterator();
     }
 
     @Override
-    public AnalysisObject[] objectsArray(AnalysisType type) {
+    public AnalysisObject[] objectsArray(BaseAnalysisType type) {
         return AnalysisObject.EMPTY_ARRAY;
     }
 
     @Override
-    public boolean containsType(AnalysisType exactType) {
+    public boolean containsType(BaseAnalysisType exactType) {
         return false;
     }
 
@@ -1504,7 +1504,7 @@ final class NullTypeState extends TypeState {
     }
 
     @Override
-    public TypeState exactTypeState(BigBang bb, AnalysisType exactType) {
+    public TypeState exactTypeState(BigBang bb, BaseAnalysisType exactType) {
         return this;
     }
 

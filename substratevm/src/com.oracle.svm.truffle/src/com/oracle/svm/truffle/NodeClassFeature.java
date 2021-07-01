@@ -37,8 +37,8 @@ import java.util.Set;
 import org.graalvm.nativeimage.ImageSingletons;
 import org.graalvm.nativeimage.hosted.Feature;
 
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.annotate.AnnotateOriginal;
 import com.oracle.svm.core.annotate.NeverInline;
 import com.oracle.svm.core.annotate.Substitute;
@@ -93,7 +93,7 @@ public class NodeClassFeature implements Feature {
         for (Class<?> clazz : access.reachableSubtypes(Node.class)) {
             registerUnsafeAccess(access, clazz.asSubclass(Node.class));
 
-            AnalysisType type = ((DuringAnalysisAccessImpl) access).getMetaAccess().lookupJavaType(clazz);
+            BaseAnalysisType type = ((DuringAnalysisAccessImpl) access).getMetaAccess().lookupJavaType(clazz);
             if (type.isInstantiated()) {
                 graalObjectReplacer.createType(type);
             }

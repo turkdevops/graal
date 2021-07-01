@@ -28,13 +28,13 @@ import org.graalvm.compiler.nodes.ValueNode;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.code.BytecodePosition;
 
 public class BoxTypeFlow extends NewInstanceTypeFlow {
 
-    public BoxTypeFlow(ValueNode node, AnalysisType type, BytecodeLocation boxSite) {
+    public BoxTypeFlow(ValueNode node, BaseAnalysisType type, BytecodeLocation boxSite) {
         super(node, type, boxSite);
     }
 

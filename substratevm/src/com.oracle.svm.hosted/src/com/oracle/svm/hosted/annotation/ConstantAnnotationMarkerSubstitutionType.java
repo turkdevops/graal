@@ -26,8 +26,8 @@ package com.oracle.svm.hosted.annotation;
 
 import java.lang.annotation.Annotation;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
 import com.oracle.svm.hosted.c.GraalAccess;
 
 import jdk.vm.ci.meta.Assumptions;

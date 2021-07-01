@@ -69,7 +69,7 @@ import org.graalvm.compiler.phases.util.Providers;
 import org.graalvm.compiler.serviceprovider.BufferUtil;
 import org.graalvm.nativeimage.ImageSingletons;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.ParsingReason;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.c.CGlobalData;
@@ -141,8 +141,8 @@ public class CGlobalDataFeature implements GraalFeature {
                     info = b.nullCheckedValue(info);
 
                     ResolvedJavaType infoType = b.getMetaAccess().lookupJavaType(CGlobalDataInfo.class);
-                    if (infoType instanceof AnalysisType) {
-                        ((AnalysisType) infoType).registerAsReachable();
+                    if (infoType instanceof BaseAnalysisType) {
+                        ((BaseAnalysisType) infoType).registerAsReachable();
                     }
 
                     ValueNode offset = b.add(LoadFieldNode.create(b.getAssumptions(), info, b.getMetaAccess().lookupJavaField(offsetField)));

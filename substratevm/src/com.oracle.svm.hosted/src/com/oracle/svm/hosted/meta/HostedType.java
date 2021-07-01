@@ -31,10 +31,10 @@ import java.util.Arrays;
 
 import org.graalvm.word.WordBase;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaType;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaType;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.hub.DynamicHub;
 import com.oracle.svm.core.meta.SharedType;
 
@@ -48,7 +48,7 @@ import jdk.vm.ci.meta.ResolvedJavaType;
 public abstract class HostedType implements SharedType, WrappedJavaType, Comparable<HostedType>, OriginalClassProvider {
 
     protected final HostedUniverse universe;
-    protected final AnalysisType wrapped;
+    protected final BaseAnalysisType wrapped;
 
     private final JavaKind kind;
     private final JavaKind storageKind;
@@ -99,7 +99,7 @@ public abstract class HostedType implements SharedType, WrappedJavaType, Compara
 
     private final boolean isCloneable;
 
-    public HostedType(HostedUniverse universe, AnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedClass superClass, HostedInterface[] interfaces, boolean isCloneable) {
+    public HostedType(HostedUniverse universe, BaseAnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedClass superClass, HostedInterface[] interfaces, boolean isCloneable) {
         this.universe = universe;
         this.wrapped = wrapped;
         this.kind = kind;
@@ -187,7 +187,7 @@ public abstract class HostedType implements SharedType, WrappedJavaType, Compara
     }
 
     @Override
-    public AnalysisType getWrapped() {
+    public BaseAnalysisType getWrapped() {
         return wrapped;
     }
 

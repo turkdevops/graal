@@ -24,13 +24,14 @@
  */
 package com.oracle.graal.pointsto;
 
+import com.oracle.graal.analysis.ObjectScanner;
 import com.oracle.graal.pointsto.flow.ArrayElementsTypeFlow;
 import com.oracle.graal.pointsto.flow.FieldTypeFlow;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
-import com.oracle.graal.pointsto.util.CompletionExecutor;
+import com.oracle.graal.analysis.util.CompletionExecutor;
 
 import jdk.vm.ci.meta.JavaConstant;
 
@@ -65,7 +66,7 @@ public class AnalysisObjectScanner extends ObjectScanner {
 
     @Override
     public void forNonNullFieldValue(JavaConstant receiver, AnalysisField field, JavaConstant fieldValue) {
-        AnalysisType fieldType = bb.getMetaAccess().lookupJavaType(bb.getSnippetReflectionProvider().asObject(Object.class, fieldValue).getClass());
+        BaseAnalysisType fieldType = bb.getMetaAccess().lookupJavaType(bb.getSnippetReflectionProvider().asObject(Object.class, fieldValue).getClass());
         assert fieldType.isInstantiated() : fieldType;
 
         /*
@@ -97,14 +98,14 @@ public class AnalysisObjectScanner extends ObjectScanner {
              * The field comes from a constant scan, thus it's type flow is mapped to the unique
              * constant object.
              */
-            AnalysisType receiverType = bb.getMetaAccess().lookupJavaType(bb.getSnippetReflectionProvider().asObject(Object.class, receiver).getClass());
+            BaseAnalysisType receiverType = bb.getMetaAccess().lookupJavaType(bb.getSnippetReflectionProvider().asObject(Object.class, receiver).getClass());
             AnalysisObject constantReceiverObj = bb.analysisPolicy().createConstantObject(bb, receiver, receiverType);
             return constantReceiverObj.getInstanceFieldFlow(bb, field, true);
         }
     }
 
     @Override
-    public void forNullArrayElement(JavaConstant array, AnalysisType arrayType, int elementIndex) {
+    public void forNullArrayElement(JavaConstant array, BaseAnalysisType arrayType, int elementIndex) {
         ArrayElementsTypeFlow arrayObjElementsFlow = getArrayElementsFlow(array, arrayType);
         if (!arrayObjElementsFlow.getState().canBeNull()) {
             /* Signal that the constant array can contain null. */
@@ -113,7 +114,7 @@ public class AnalysisObjectScanner extends ObjectScanner {
     }
 
     @Override
-    public void forNonNullArrayElement(JavaConstant array, AnalysisType arrayType, JavaConstant elementConstant, AnalysisType elementType, int elementIndex) {
+    public void forNonNullArrayElement(JavaConstant array, BaseAnalysisType arrayType, JavaConstant elementConstant, BaseAnalysisType elementType, int elementIndex) {
         /*
          * *ALL* constants are scanned after each analysis iteration, thus the elementType will
          * eventually be added to the AllInstantiatedTypeFlow and the array elements flow will
@@ -131,7 +132,7 @@ public class AnalysisObjectScanner extends ObjectScanner {
     }
 
     /** Get the array elements flow given its type and the array constant. */
-    private ArrayElementsTypeFlow getArrayElementsFlow(JavaConstant array, AnalysisType arrayType) {
+    private ArrayElementsTypeFlow getArrayElementsFlow(JavaConstant array, BaseAnalysisType arrayType) {
         AnalysisObject arrayObjConstant = bb.analysisPolicy().createConstantObject(bb, array, arrayType);
         return arrayObjConstant.getArrayElementsFlow(bb, true);
     }
@@ -139,7 +140,7 @@ public class AnalysisObjectScanner extends ObjectScanner {
     @Override
     protected void forScannedConstant(JavaConstant value, ScanReason reason) {
         Object valueObj = bb.getSnippetReflectionProvider().asObject(Object.class, value);
-        AnalysisType type = bb.getMetaAccess().lookupJavaType(valueObj.getClass());
+        BaseAnalysisType type = bb.getMetaAccess().lookupJavaType(valueObj.getClass());
 
         type.registerAsInHeap();
     }

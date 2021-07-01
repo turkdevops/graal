@@ -35,11 +35,11 @@ import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.results.StaticAnalysisResultsBuilder;
 import com.oracle.graal.pointsto.typestate.PointsToStats;
 import com.oracle.graal.pointsto.typestate.TypeState;
-import com.oracle.graal.pointsto.util.CompletionExecutor.DebugContextRunnable;
+import com.oracle.graal.analysis.util.CompletionExecutor.DebugContextRunnable;
 import com.oracle.graal.pointsto.util.ConcurrentLightHashSet;
 
 @SuppressWarnings("rawtypes")
@@ -57,7 +57,7 @@ public abstract class TypeFlow<T> {
      * The declared type of the node corresponding to this flow. The declared type is inferred from
      * stamps during bytecode parsing, and, when missing, it is approximated by Object.
      */
-    protected final AnalysisType declaredType;
+    protected final BaseAnalysisType declaredType;
 
     private volatile TypeState state;
 
@@ -113,7 +113,7 @@ public abstract class TypeFlow<T> {
     @SuppressWarnings("rawtypes")//
     private static final AtomicReferenceFieldUpdater<TypeFlow, TypeState> STATE_UPDATER = AtomicReferenceFieldUpdater.newUpdater(TypeFlow.class, TypeState.class, "state");
 
-    private TypeFlow(T source, AnalysisType declaredType, TypeState typeState, int slot, boolean isClone, MethodFlowsGraph graphRef) {
+    private TypeFlow(T source, BaseAnalysisType declaredType, TypeState typeState, int slot, boolean isClone, MethodFlowsGraph graphRef) {
         this.id = nextId.incrementAndGet();
         this.source = source;
         this.declaredType = declaredType;
@@ -136,11 +136,11 @@ public abstract class TypeFlow<T> {
         this(null, null, typeState, -1, false, null);
     }
 
-    public TypeFlow(T source, AnalysisType declaredType) {
+    public TypeFlow(T source, BaseAnalysisType declaredType) {
         this(source, declaredType, TypeState.forEmpty(), -1, false, null);
     }
 
-    public TypeFlow(T source, AnalysisType declaredType, TypeState state) {
+    public TypeFlow(T source, BaseAnalysisType declaredType, TypeState state) {
         this(source, declaredType, state, -1, false, null);
     }
 
@@ -220,7 +220,7 @@ public abstract class TypeFlow<T> {
         return isClone;
     }
 
-    public AnalysisType getDeclaredType() {
+    public BaseAnalysisType getDeclaredType() {
         return declaredType;
     }
 
@@ -644,7 +644,7 @@ public abstract class TypeFlow<T> {
      * observed with a custom type flow.
      * 
      */
-    public void replaceObservedWith(BigBang bb, AnalysisType newObservedType) {
+    public void replaceObservedWith(BigBang bb, BaseAnalysisType newObservedType) {
         replacedObservedWith(bb, newObservedType.getTypeFlow(bb, false));
     }
 

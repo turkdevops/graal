@@ -31,7 +31,7 @@ import org.graalvm.compiler.nodes.extended.RawLoadNode;
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.nodes.UnsafePartitionLoadNode;
 import com.oracle.graal.pointsto.typestate.TypeState;
 import com.oracle.svm.util.UnsafePartitionKind;
@@ -48,13 +48,13 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
      * The type of the receiver object of the offset load operation. Can be approximated by Object
      * or Object[] when it cannot be infered from stamps.
      */
-    private final AnalysisType objectType;
+    private final BaseAnalysisType objectType;
 
     /** The type flow of the receiver object of the load operation. */
     protected TypeFlow<?> objectFlow;
 
     @SuppressWarnings("unused")
-    public OffsetLoadTypeFlow(ValueNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, MethodTypeFlow methodFlow) {
+    public OffsetLoadTypeFlow(ValueNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, MethodTypeFlow methodFlow) {
         super(node.getNodeSourcePosition(), componentType);
         this.objectType = objectType;
         this.objectFlow = objectFlow;
@@ -105,7 +105,7 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
      */
     public static class LoadIndexedTypeFlow extends OffsetLoadTypeFlow {
 
-        public LoadIndexedTypeFlow(ValueNode node, AnalysisType arrayType, TypeFlow<?> arrayFlow, MethodTypeFlow methodFlow) {
+        public LoadIndexedTypeFlow(ValueNode node, BaseAnalysisType arrayType, TypeFlow<?> arrayFlow, MethodTypeFlow methodFlow) {
             super(node, arrayType, arrayType.getComponentType(), arrayFlow, methodFlow);
         }
 
@@ -149,7 +149,7 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
 
     public abstract static class AbstractUnsafeLoadTypeFlow extends OffsetLoadTypeFlow {
 
-        AbstractUnsafeLoadTypeFlow(ValueNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, MethodTypeFlow methodFlow) {
+        AbstractUnsafeLoadTypeFlow(ValueNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, MethodTypeFlow methodFlow) {
             super(node, objectType, componentType, objectFlow, methodFlow);
         }
 
@@ -187,7 +187,7 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
 
             TypeState objectState = getObjectState();
             for (AnalysisObject object : objectState.objects()) {
-                AnalysisType objectType = object.type();
+                BaseAnalysisType objectType = object.type();
                 if (objectType.isArray()) {
                     if (object.isPrimitiveArray() || object.isEmptyObjectArrayConstant(bb)) {
                         /* Nothing to read from a primitive array or an empty array constant. */
@@ -215,7 +215,7 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
 
     public static class UnsafeLoadTypeFlow extends AbstractUnsafeLoadTypeFlow {
 
-        public UnsafeLoadTypeFlow(RawLoadNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> arrayFlow, MethodTypeFlow methodFlow) {
+        public UnsafeLoadTypeFlow(RawLoadNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> arrayFlow, MethodTypeFlow methodFlow) {
             super(node, objectType, componentType, arrayFlow, methodFlow);
         }
 
@@ -237,10 +237,10 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
     public static class UnsafePartitionLoadTypeFlow extends AbstractUnsafeLoadTypeFlow {
 
         protected final UnsafePartitionKind partitionKind;
-        protected final AnalysisType partitionType;
+        protected final BaseAnalysisType partitionType;
 
-        public UnsafePartitionLoadTypeFlow(UnsafePartitionLoadNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> arrayFlow, MethodTypeFlow methodFlow,
-                        UnsafePartitionKind partitionKind, AnalysisType partitionType) {
+        public UnsafePartitionLoadTypeFlow(UnsafePartitionLoadNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> arrayFlow, MethodTypeFlow methodFlow,
+                        UnsafePartitionKind partitionKind, BaseAnalysisType partitionType) {
             super(node, objectType, componentType, arrayFlow, methodFlow);
             this.partitionKind = partitionKind;
             this.partitionType = partitionType;
@@ -276,7 +276,7 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
             TypeState objectState = getObjectState();
 
             for (AnalysisObject object : objectState.objects()) {
-                AnalysisType objectType = object.type();
+                BaseAnalysisType objectType = object.type();
                 assert !objectType.isArray();
 
                 for (AnalysisField field : objectType.unsafeAccessedFields(partitionKind)) {
@@ -294,7 +294,7 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
 
     public static class AtomicReadTypeFlow extends AbstractUnsafeLoadTypeFlow {
 
-        public AtomicReadTypeFlow(ValueNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> objectFlow, MethodTypeFlow methodFlow) {
+        public AtomicReadTypeFlow(ValueNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> objectFlow, MethodTypeFlow methodFlow) {
             super(node, objectType, componentType, objectFlow, methodFlow);
         }
 
@@ -315,7 +315,7 @@ public abstract class OffsetLoadTypeFlow extends TypeFlow<BytecodePosition> {
 
     public static class JavaReadTypeFlow extends AbstractUnsafeLoadTypeFlow {
 
-        public JavaReadTypeFlow(JavaReadNode node, AnalysisType objectType, AnalysisType componentType, TypeFlow<?> arrayFlow, MethodTypeFlow methodFlow) {
+        public JavaReadTypeFlow(JavaReadNode node, BaseAnalysisType objectType, BaseAnalysisType componentType, TypeFlow<?> arrayFlow, MethodTypeFlow methodFlow) {
             super(node, objectType, componentType, arrayFlow, methodFlow);
         }
 

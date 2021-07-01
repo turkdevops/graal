@@ -26,7 +26,7 @@ package com.oracle.graal.pointsto.flow;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 /**
@@ -34,7 +34,7 @@ import com.oracle.graal.pointsto.typestate.TypeState;
  */
 public class InitialReceiverTypeFlow extends InitialParamTypeFlow {
 
-    public InitialReceiverTypeFlow(AnalysisMethod source, AnalysisType declaredType) {
+    public InitialReceiverTypeFlow(AnalysisMethod source, BaseAnalysisType declaredType) {
         super(source, declaredType, 0);
     }
 

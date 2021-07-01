@@ -44,13 +44,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import org.graalvm.compiler.options.OptionValues;
 
-import com.oracle.graal.pointsto.ObjectScanner;
+import com.oracle.graal.analysis.ObjectScanner;
 import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.common.JVMCIError;
 import jdk.vm.ci.meta.JavaConstant;
@@ -98,14 +98,14 @@ public final class ObjectTreePrinter extends ObjectScanner {
 
     static class ObjectNodeBase {
         final RootSource source;
-        final AnalysisType type;
+        final BaseAnalysisType type;
         final JavaConstant constant;
 
-        ObjectNodeBase(AnalysisType type, JavaConstant constant) {
+        ObjectNodeBase(BaseAnalysisType type, JavaConstant constant) {
             this(type, null, constant);
         }
 
-        ObjectNodeBase(AnalysisType type, RootSource rootSource, JavaConstant constant) {
+        ObjectNodeBase(BaseAnalysisType type, RootSource rootSource, JavaConstant constant) {
             this.type = type;
             this.source = rootSource;
             this.constant = constant;
@@ -150,7 +150,7 @@ public final class ObjectTreePrinter extends ObjectScanner {
         }
 
         static ObjectNodeBase fromConstant(StaticAnalysisEngine analysis, JavaConstant constant, RootSource rootSource) {
-            AnalysisType type = constantType(analysis, constant);
+            BaseAnalysisType type = constantType(analysis, constant);
             if (type == null) {
                 return ObjectNode.forNull();
             } else if (type.isArray()) {
@@ -164,7 +164,7 @@ public final class ObjectTreePrinter extends ObjectScanner {
     static class ObjectNode extends ObjectNodeBase {
         final Map<AnalysisField, FieldNode> fields;
 
-        ObjectNode(AnalysisType type, RootSource rootSource, JavaConstant constant) {
+        ObjectNode(BaseAnalysisType type, RootSource rootSource, JavaConstant constant) {
             super(type, rootSource, constant);
             this.fields = new LinkedHashMap<>();
         }
@@ -196,7 +196,7 @@ public final class ObjectTreePrinter extends ObjectScanner {
     static class ArrayObjectNode extends ObjectNodeBase {
         final Map<Integer, ElementNode> elements;
 
-        ArrayObjectNode(AnalysisType type, RootSource rootSource, JavaConstant constant) {
+        ArrayObjectNode(BaseAnalysisType type, RootSource rootSource, JavaConstant constant) {
             super(type, rootSource, constant);
             this.elements = new LinkedHashMap<>();
         }
@@ -229,7 +229,7 @@ public final class ObjectTreePrinter extends ObjectScanner {
 
         static final ObjectNodeBase INSTANCE = new NullValue(null);
 
-        private NullValue(AnalysisType type) {
+        private NullValue(BaseAnalysisType type) {
             super(type, null);
         }
 
@@ -344,7 +344,7 @@ public final class ObjectTreePrinter extends ObjectScanner {
     }
 
     @Override
-    public void forNullArrayElement(JavaConstant array, AnalysisType arrayType, int index) {
+    public void forNullArrayElement(JavaConstant array, BaseAnalysisType arrayType, int index) {
         assert constantToNode.containsKey(array);
 
         ArrayObjectNode arrayNode = (ArrayObjectNode) constantToNode.get(array);
@@ -352,7 +352,7 @@ public final class ObjectTreePrinter extends ObjectScanner {
     }
 
     @Override
-    public void forNonNullArrayElement(JavaConstant array, AnalysisType arrayType, JavaConstant elementConstant, AnalysisType elementType, int index) {
+    public void forNonNullArrayElement(JavaConstant array, BaseAnalysisType arrayType, JavaConstant elementConstant, BaseAnalysisType elementType, int index) {
         if (constantToNode.containsKey(array) && constantToNode.containsKey(elementConstant)) {
             ArrayObjectNode arrayNode = (ArrayObjectNode) constantToNode.get(array);
             ObjectNodeBase valueNode = constantToNode.get(elementConstant);
@@ -418,8 +418,8 @@ public final class ObjectTreePrinter extends ObjectScanner {
         }
     }
 
-    private boolean suppressType(AnalysisType type) {
-        AnalysisType elementalType = (AnalysisType) type.getElementalType();
+    private boolean suppressType(BaseAnalysisType type) {
+        BaseAnalysisType elementalType = (BaseAnalysisType) type.getElementalType();
         String elementalTypeName = elementalType.toJavaName(true);
 
         if (expandTypeMatcher.matches(elementalTypeName)) {

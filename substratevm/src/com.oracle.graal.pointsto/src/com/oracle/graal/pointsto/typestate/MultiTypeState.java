@@ -28,14 +28,14 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import org.graalvm.compiler.options.OptionValues;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 
 public class MultiTypeState extends TypeState {
 
@@ -155,7 +155,7 @@ public class MultiTypeState extends TypeState {
     }
 
     @Override
-    public AnalysisType exactType() {
+    public BaseAnalysisType exactType() {
         return typesCount == 1 ? objects[0].type() : null;
     }
 
@@ -165,12 +165,12 @@ public class MultiTypeState extends TypeState {
     }
 
     /** Get the type of the first object group. */
-    AnalysisType firstType() {
+    BaseAnalysisType firstType() {
         return objects[0].type();
     }
 
     /** Get the type of the last object group. */
-    AnalysisType lastType() {
+    BaseAnalysisType lastType() {
         return objects[objects.length - 1].type();
     }
 
@@ -180,8 +180,8 @@ public class MultiTypeState extends TypeState {
      * by way of bit set iteration.
      */
     @Override
-    public Iterator<AnalysisType> typesIterator() {
-        return new Iterator<AnalysisType>() {
+    public Iterator<BaseAnalysisType> typesIterator() {
+        return new Iterator<BaseAnalysisType>() {
 
             /** Initialize to the index of the first set bit. */
             private int currentTypeId = typesBitSet.nextSetBit(0);
@@ -192,8 +192,8 @@ public class MultiTypeState extends TypeState {
             }
 
             @Override
-            public AnalysisType next() {
-                AnalysisType next = bigbang.getUniverse().getType(currentTypeId);
+            public BaseAnalysisType next() {
+                BaseAnalysisType next = bigbang.getUniverse().getType(currentTypeId);
                 currentTypeId = typesBitSet.nextSetBit(currentTypeId + 1);
                 return next;
             }
@@ -201,12 +201,12 @@ public class MultiTypeState extends TypeState {
     }
 
     @Override
-    public boolean containsType(AnalysisType exactType) {
+    public boolean containsType(BaseAnalysisType exactType) {
         return typesBitSet.get(exactType.getId());
     }
 
     @Override
-    public TypeState exactTypeState(BigBang bb, AnalysisType exactType) {
+    public TypeState exactTypeState(BigBang bb, BaseAnalysisType exactType) {
         if (containsType(exactType)) {
             AnalysisObject[] resultObjects = objectsArray(exactType);
             return new SingleTypeState(bb, canBeNull, bb.analysisPolicy().makeProperties(bb, resultObjects), resultObjects);
@@ -255,7 +255,7 @@ public class MultiTypeState extends TypeState {
         }
     }
 
-    Range findTypeRange(AnalysisType type) {
+    Range findTypeRange(BaseAnalysisType type) {
 
         /* First do a quick check using the types bit set. */
         if (!containsType(type)) {
@@ -286,7 +286,7 @@ public class MultiTypeState extends TypeState {
     }
 
     @Override
-    public AnalysisObject[] objectsArray(AnalysisType type) {
+    public AnalysisObject[] objectsArray(BaseAnalysisType type) {
         Range typeRange = findTypeRange(type);
         return Arrays.copyOfRange(objects, typeRange.left, typeRange.right);
     }
@@ -296,7 +296,7 @@ public class MultiTypeState extends TypeState {
     }
 
     @Override
-    public Iterator<AnalysisObject> objectsIterator(AnalysisType exactType) {
+    public Iterator<AnalysisObject> objectsIterator(BaseAnalysisType exactType) {
         return new Iterator<AnalysisObject>() {
             private Range typeRange = findTypeRange(exactType);
             private int idx = typeRange.left;

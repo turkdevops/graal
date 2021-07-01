@@ -28,7 +28,7 @@ import org.graalvm.compiler.graph.Node;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.typestate.TypeState;
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError;
 
 import jdk.vm.ci.code.BytecodePosition;
 

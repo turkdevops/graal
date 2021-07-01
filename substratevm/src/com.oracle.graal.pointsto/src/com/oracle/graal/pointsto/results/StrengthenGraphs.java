@@ -77,10 +77,10 @@ import com.oracle.graal.pointsto.flow.InvokeTypeFlow;
 import com.oracle.graal.pointsto.flow.MethodFlowsGraph;
 import com.oracle.graal.pointsto.flow.MethodTypeFlow;
 import com.oracle.graal.pointsto.flow.TypeFlow;
-import com.oracle.graal.pointsto.infrastructure.Universe;
+import com.oracle.graal.analysis.infrastructure.Universe;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.meta.JavaKind;
@@ -148,7 +148,7 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
      * 
      * Returns null if there is no single implementor type.
      */
-    protected abstract AnalysisType getSingleImplementorType(AnalysisType originalType);
+    protected abstract BaseAnalysisType getSingleImplementorType(BaseAnalysisType originalType);
 
     /*
      * Returns a type that can replace the original type in stamps.
@@ -159,7 +159,7 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
      * Returns the original type itself if there is no optimization potential, i.e., if the original
      * type itself is instantiated or has more than one instantiated direct subtype.
      */
-    protected abstract AnalysisType getStrengthenStampType(AnalysisType originalType);
+    protected abstract BaseAnalysisType getStrengthenStampType(BaseAnalysisType originalType);
 
     protected abstract FixedNode createUnreachable(StructuredGraph graph, CoreProviders providers, Supplier<String> message);
 
@@ -480,7 +480,7 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
             TypeState nodeTypeState = methodFlow.foldTypeFlow(bb, nodeFlow);
             node.inferStamp();
             ObjectStamp oldStamp = (ObjectStamp) node.stamp(NodeView.DEFAULT);
-            AnalysisType oldType = (AnalysisType) oldStamp.type();
+            BaseAnalysisType oldType = (BaseAnalysisType) oldStamp.type();
             boolean nonNull = oldStamp.nonNull() || !nodeTypeState.canBeNull();
 
             /*
@@ -489,8 +489,8 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
              * analysis does not track primitive types at all, it is possible and allowed that the
              * stamp is already more precise than the static analysis results.
              */
-            List<AnalysisType> typeStateTypes = new ArrayList<>(nodeTypeState.typesCount());
-            for (AnalysisType typeStateType : nodeTypeState.types()) {
+            List<BaseAnalysisType> typeStateTypes = new ArrayList<>(nodeTypeState.typesCount());
+            for (BaseAnalysisType typeStateType : nodeTypeState.types()) {
                 if (oldType == null || (oldStamp.isExactType() ? oldType.equals(typeStateType) : oldType.isAssignableFrom(typeStateType))) {
                     typeStateTypes.add(typeStateType);
                 }
@@ -505,7 +505,7 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
                 }
 
             } else if (typeStateTypes.size() == 1) {
-                AnalysisType exactType = typeStateTypes.get(0);
+                BaseAnalysisType exactType = typeStateTypes.get(0);
                 assert getSingleImplementorType(exactType) == null || exactType.equals(getSingleImplementorType(exactType)) : "exactType=" + exactType + ", singleImplementor=" +
                                 getSingleImplementorType(exactType);
                 assert exactType.equals(getStrengthenStampType(exactType));
@@ -520,7 +520,7 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
 
             } else if (!oldStamp.isExactType()) {
                 assert typeStateTypes.size() > 1;
-                AnalysisType baseType = typeStateTypes.get(0);
+                BaseAnalysisType baseType = typeStateTypes.get(0);
                 for (int i = 1; i < typeStateTypes.size(); i++) {
                     baseType = baseType.findLeastCommonAncestor(typeStateTypes.get(i));
                 }
@@ -541,7 +541,7 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
                 assert getSingleImplementorType(baseType) == null || baseType.equals(getSingleImplementorType(baseType)) : "baseType=" + baseType + ", singleImplementor=" +
                                 getSingleImplementorType(baseType);
 
-                AnalysisType newType = getStrengthenStampType(baseType);
+                BaseAnalysisType newType = getStrengthenStampType(baseType);
 
                 assert typeStateTypes.stream().map(typeStateType -> newType.isAssignableFrom(typeStateType)).reduce(Boolean::logicalAnd).get();
 
@@ -568,7 +568,7 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
             GraphUtil.killCFG(node);
         }
 
-        protected ResolvedJavaType toTarget(AnalysisType type) {
+        protected ResolvedJavaType toTarget(BaseAnalysisType type) {
             /*
              * This method will require more checks once we also parse graphs for JIT compilation:
              * When the SubstrateType was not created during static analysis for the provided
@@ -582,12 +582,12 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
                 return null;
             }
             AbstractObjectStamp stamp = (AbstractObjectStamp) s;
-            AnalysisType originalType = (AnalysisType) stamp.type();
+            BaseAnalysisType originalType = (BaseAnalysisType) stamp.type();
             if (originalType == null) {
                 return null;
             }
 
-            AnalysisType singleImplementorType = getSingleImplementorType(originalType);
+            BaseAnalysisType singleImplementorType = getSingleImplementorType(originalType);
             if (singleImplementorType != null && (!stamp.isExactType() || !singleImplementorType.equals(originalType))) {
                 ResolvedJavaType targetType = toTarget(singleImplementorType);
                 if (targetType != null) {
@@ -596,7 +596,7 @@ public abstract class StrengthenGraphs extends AbstractAnalysisResultsBuilder {
                 }
             }
 
-            AnalysisType strengthenType = getStrengthenStampType(originalType);
+            BaseAnalysisType strengthenType = getStrengthenStampType(originalType);
             if (originalType.equals(strengthenType)) {
                 /* Nothing to strengthen. */
                 return null;

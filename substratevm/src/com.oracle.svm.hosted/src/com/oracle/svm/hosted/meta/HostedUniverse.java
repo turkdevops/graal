@@ -33,14 +33,14 @@ import java.util.Map;
 import com.oracle.svm.hosted.analysis.NativeImageStaticAnalysisEngine;
 import org.graalvm.compiler.api.replacements.SnippetReflectionProvider;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
-import com.oracle.graal.pointsto.infrastructure.Universe;
-import com.oracle.graal.pointsto.infrastructure.WrappedConstantPool;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaType;
-import com.oracle.graal.pointsto.infrastructure.WrappedSignature;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.infrastructure.Universe;
+import com.oracle.graal.analysis.infrastructure.WrappedConstantPool;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaType;
+import com.oracle.graal.analysis.infrastructure.WrappedSignature;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.hosted.SVMHost;
 import com.oracle.svm.hosted.ameta.AnalysisConstantReflectionProvider;
 
@@ -63,7 +63,7 @@ import jdk.vm.ci.meta.Signature;
 public class HostedUniverse implements Universe {
     protected final NativeImageStaticAnalysisEngine analysis;
 
-    protected final Map<AnalysisType, HostedType> types = new HashMap<>();
+    protected final Map<BaseAnalysisType, HostedType> types = new HashMap<>();
     protected final Map<AnalysisField, HostedField> fields = new HashMap<>();
     protected final Map<AnalysisMethod, HostedMethod> methods = new HashMap<>();
     protected final Map<Signature, WrappedSignature> signatures = new HashMap<>();

@@ -37,7 +37,7 @@ import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -59,10 +59,10 @@ public abstract class InvokeTypeFlow extends TypeFlow<BytecodePosition> {
 
     protected final InvokeTypeFlow originalInvoke;
 
-    protected final AnalysisType receiverType;
+    protected final BaseAnalysisType receiverType;
     protected final AnalysisMethod targetMethod;
 
-    protected InvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    protected InvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
         super(invokeLocation, null);
         this.originalInvoke = null;
@@ -95,7 +95,7 @@ public abstract class InvokeTypeFlow extends TypeFlow<BytecodePosition> {
 
     public abstract boolean isDirectInvoke();
 
-    public AnalysisType getReceiverType() {
+    public BaseAnalysisType getReceiverType() {
         return receiverType;
     }
 
@@ -304,7 +304,7 @@ public abstract class InvokeTypeFlow extends TypeFlow<BytecodePosition> {
          */
         TypeFlow<?>[] actualParameters = new TypeFlow<?>[method.getSignature().getParameterCount(true)];
 
-        AnalysisType receiverType = method.getDeclaringClass();
+        BaseAnalysisType receiverType = method.getDeclaringClass();
         /*
          * The receiver flow of the context insensitive invoke is the type flow of its declaring
          * class.
@@ -313,10 +313,10 @@ public abstract class InvokeTypeFlow extends TypeFlow<BytecodePosition> {
 
         actualParameters[0] = receiverFlow;
         for (int i = 1; i < actualParameters.length; i++) {
-            actualParameters[i] = new ActualParameterTypeFlow((AnalysisType) method.getSignature().getParameterType(i - 1, null));
+            actualParameters[i] = new ActualParameterTypeFlow((BaseAnalysisType) method.getSignature().getParameterType(i - 1, null));
         }
         ActualReturnTypeFlow actualReturn = null;
-        AnalysisType returnType = (AnalysisType) method.getSignature().getReturnType(null);
+        BaseAnalysisType returnType = (BaseAnalysisType) method.getSignature().getReturnType(null);
         if (returnType.getStorageKind() == JavaKind.Object) {
             actualReturn = new ActualReturnTypeFlow(returnType);
         }
@@ -334,7 +334,7 @@ public abstract class InvokeTypeFlow extends TypeFlow<BytecodePosition> {
      * invoke, linking all callees.
      */
     public static void initContextInsensitiveInvoke(BigBang bb, AnalysisMethod method, InvokeTypeFlow invoke) {
-        AnalysisType receiverType = method.getDeclaringClass();
+        BaseAnalysisType receiverType = method.getDeclaringClass();
         AllInstantiatedTypeFlow receiverFlow = receiverType.getTypeFlow(bb, false);
         receiverFlow.addObserver(bb, invoke);
     }
@@ -350,7 +350,7 @@ abstract class DirectInvokeTypeFlow extends InvokeTypeFlow {
      */
     protected AnalysisContext callerContext;
 
-    protected DirectInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    protected DirectInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
         super(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
         callerContext = null;
@@ -381,7 +381,7 @@ final class StaticInvokeTypeFlow extends DirectInvokeTypeFlow {
 
     private AnalysisContext calleeContext;
 
-    protected StaticInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    protected StaticInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location) {
         super(invokeLocation, receiverType, targetMethod, actualParameters, actualReturn, location);
         calleeContext = null;

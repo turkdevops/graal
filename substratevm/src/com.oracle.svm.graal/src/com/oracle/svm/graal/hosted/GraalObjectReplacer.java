@@ -45,12 +45,12 @@ import org.graalvm.compiler.nodes.FieldLocationIdentity;
 import org.graalvm.nativeimage.c.function.RelocatedPointer;
 import org.graalvm.nativeimage.hosted.Feature.CompilationAccess;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.SubstrateUtil;
 import com.oracle.svm.core.graal.nodes.SubstrateFieldLocationIdentity;
 import com.oracle.svm.core.hub.DynamicHub;
@@ -98,7 +98,7 @@ public class GraalObjectReplacer implements Function<Object, Object> {
     private final HashMap<AnalysisMethod, SubstrateMethod> methods = new HashMap<>();
     private final HashMap<AnalysisField, SubstrateField> fields = new HashMap<>();
     private final HashMap<FieldLocationIdentity, SubstrateFieldLocationIdentity> fieldLocationIdentities = new HashMap<>();
-    private final HashMap<AnalysisType, SubstrateType> types = new HashMap<>();
+    private final HashMap<BaseAnalysisType, SubstrateType> types = new HashMap<>();
     private final HashMap<Signature, SubstrateSignature> signatures = new HashMap<>();
     private final GraalProviderObjectReplacements providerReplacements;
     private SubstrateGraalRuntime sGraalRuntime;
@@ -284,7 +284,7 @@ public class GraalObjectReplacer implements Function<Object, Object> {
             return null;
         }
 
-        AnalysisType aType = toAnalysisType(original);
+        BaseAnalysisType aType = toAnalysisType(original);
         VMError.guarantee(aType.isLinked(), "types reachable for JIT compilation must not have linkage errors");
         SubstrateType sType = types.get(aType);
 
@@ -299,18 +299,18 @@ public class GraalObjectReplacer implements Function<Object, Object> {
             sType.setRawAllInstanceFields(createAllInstanceFields(aType));
             createType(aType.getSuperclass());
             createType(aType.getComponentType());
-            for (AnalysisType aInterface : aType.getInterfaces()) {
+            for (BaseAnalysisType aInterface : aType.getInterfaces()) {
                 createType(aInterface);
             }
         }
         return sType;
     }
 
-    private static AnalysisType toAnalysisType(JavaType original) {
+    private static BaseAnalysisType toAnalysisType(JavaType original) {
         if (original instanceof HostedType) {
             return ((HostedType) original).getWrapped();
-        } else if (original instanceof AnalysisType) {
-            return (AnalysisType) original;
+        } else if (original instanceof BaseAnalysisType) {
+            return (BaseAnalysisType) original;
         } else {
             throw new InternalError("unexpected type " + original);
         }
@@ -399,8 +399,8 @@ public class GraalObjectReplacer implements Function<Object, Object> {
     @SuppressWarnings("try")
     public void updateSubstrateDataAfterCompilation(HostedUniverse hUniverse, ConstantFieldProvider constantFieldProvider) {
 
-        for (Map.Entry<AnalysisType, SubstrateType> entry : types.entrySet()) {
-            AnalysisType aType = entry.getKey();
+        for (Map.Entry<BaseAnalysisType, SubstrateType> entry : types.entrySet()) {
+            BaseAnalysisType aType = entry.getKey();
             SubstrateType sType = entry.getValue();
 
             if (!hUniverse.contains(aType)) {

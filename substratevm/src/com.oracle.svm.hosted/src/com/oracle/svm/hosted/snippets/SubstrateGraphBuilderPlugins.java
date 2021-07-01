@@ -97,10 +97,10 @@ import org.graalvm.word.Pointer;
 import org.graalvm.word.PointerBase;
 import org.graalvm.word.UnsignedWord;
 
-import com.oracle.graal.pointsto.infrastructure.UniverseMetaAccess;
+import com.oracle.graal.analysis.infrastructure.UniverseMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.graal.pointsto.nodes.UnsafePartitionLoadNode;
 import com.oracle.graal.pointsto.nodes.UnsafePartitionStoreNode;
 import com.oracle.svm.core.FrameAccess;
@@ -712,7 +712,7 @@ public class SubstrateGraphBuilderPlugins {
                         Class<?> clazz = snippetReflection.asObject(Class.class, clazzNode.asJavaConstant());
                         int dimensionCount = dimensionCountNode.asJavaConstant().asInt();
 
-                        AnalysisType type = (AnalysisType) b.getMetaAccess().lookupJavaType(clazz);
+                        BaseAnalysisType type = (BaseAnalysisType) b.getMetaAccess().lookupJavaType(clazz);
                         for (int i = 0; i < dimensionCount; i++) {
                             type = type.getArrayClass();
                             type.registerAsAllocated(clazzNode);

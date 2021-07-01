@@ -49,12 +49,12 @@ import org.graalvm.compiler.serviceprovider.JavaVersionUtil;
 import org.graalvm.nativeimage.c.function.CEntryPoint;
 import org.graalvm.nativeimage.c.type.CCharPointerPointer;
 
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
-import com.oracle.graal.pointsto.util.AnalysisError;
-import com.oracle.graal.pointsto.util.AnalysisError.ParsingError;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.analysis.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError.ParsingError;
 import com.oracle.graal.pointsto.util.ParallelExecutionException;
-import com.oracle.graal.pointsto.util.Timer;
-import com.oracle.graal.pointsto.util.Timer.StopTimer;
+import com.oracle.graal.analysis.util.Timer;
+import com.oracle.graal.analysis.util.Timer.StopTimer;
 import com.oracle.svm.core.FallbackExecutor;
 import com.oracle.svm.core.JavaMainWrapper;
 import com.oracle.svm.core.JavaMainWrapper.JavaMainSupport;

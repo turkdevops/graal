@@ -24,6 +24,7 @@
  */
 package com.oracle.graal.pointsto;
 
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import org.graalvm.compiler.options.OptionValues;
 
 import com.oracle.graal.pointsto.api.PointstoOptions;
@@ -37,8 +38,8 @@ import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.graal.pointsto.typestate.TypeState;
 import com.oracle.graal.pointsto.typestore.ArrayElementsTypeStore;
 import com.oracle.graal.pointsto.typestore.FieldTypeStore;
@@ -46,7 +47,7 @@ import com.oracle.graal.pointsto.typestore.FieldTypeStore;
 import jdk.vm.ci.code.BytecodePosition;
 import jdk.vm.ci.meta.JavaConstant;
 
-public abstract class AnalysisPolicy {
+public abstract class AnalysisPolicy implements com.oracle.graal.analysis.AnalysisPolicy {
 
     protected final OptionValues options;
 
@@ -111,13 +112,13 @@ public abstract class AnalysisPolicy {
     public abstract void noteMerge(BigBang bb, AnalysisObject o);
 
     /** Specifies if an allocation site should be modeled context sensitively. */
-    public abstract boolean isContextSensitiveAllocation(BigBang bb, AnalysisType type, AnalysisContext allocationContext);
+    public abstract boolean isContextSensitiveAllocation(BigBang bb, BaseAnalysisType type, AnalysisContext allocationContext);
 
     /** Create a heap allocated object abstraction. */
-    public abstract AnalysisObject createHeapObject(BigBang bb, AnalysisType objectType, BytecodeLocation allocationSite, AnalysisContext allocationContext);
+    public abstract AnalysisObject createHeapObject(BigBang bb, BaseAnalysisType objectType, BytecodeLocation allocationSite, AnalysisContext allocationContext);
 
     /** Create a constant object abstraction. */
-    public abstract AnalysisObject createConstantObject(BigBang bb, JavaConstant constant, AnalysisType exactType);
+    public abstract AnalysisObject createConstantObject(BigBang bb, JavaConstant constant, BaseAnalysisType exactType);
 
     /** Create an allocation site given the BCI and method. */
     public abstract BytecodeLocation createAllocationSite(BigBang bb, int bci, AnalysisMethod method);
@@ -135,11 +136,11 @@ public abstract class AnalysisPolicy {
     public abstract ArrayElementsTypeStore createArrayElementsTypeStore(AnalysisObject object, AnalysisUniverse universe);
 
     /** Provides implementation for the virtual invoke type flow. */
-    public abstract AbstractVirtualInvokeTypeFlow createVirtualInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    public abstract AbstractVirtualInvokeTypeFlow createVirtualInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location);
 
     /** Provides implementation for the virtual invoke type flow. */
-    public abstract AbstractSpecialInvokeTypeFlow createSpecialInvokeTypeFlow(BytecodePosition invokeLocation, AnalysisType receiverType, AnalysisMethod targetMethod,
+    public abstract AbstractSpecialInvokeTypeFlow createSpecialInvokeTypeFlow(BytecodePosition invokeLocation, BaseAnalysisType receiverType, AnalysisMethod targetMethod,
                     TypeFlow<?>[] actualParameters, ActualReturnTypeFlow actualReturn, BytecodeLocation location);
 
     @SuppressWarnings("unused")

@@ -40,7 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ForkJoinTask;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import org.graalvm.collections.Pair;
 import org.graalvm.compiler.core.common.NumUtil;
 import org.graalvm.compiler.debug.DebugContext;
@@ -50,15 +50,15 @@ import org.graalvm.nativeimage.c.function.CEntryPointLiteral;
 import org.graalvm.nativeimage.c.function.CFunction;
 import org.graalvm.nativeimage.c.function.CFunctionPointer;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatures;
-import com.oracle.graal.pointsto.infrastructure.WrappedConstantPool;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaType;
-import com.oracle.graal.pointsto.infrastructure.WrappedSignature;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatures;
+import com.oracle.graal.analysis.infrastructure.WrappedConstantPool;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaType;
+import com.oracle.graal.analysis.infrastructure.WrappedSignature;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.graal.pointsto.results.AbstractAnalysisResultsBuilder;
 import com.oracle.svm.core.StaticFieldsSupport;
 import com.oracle.svm.core.SubstrateOptions;
@@ -129,10 +129,10 @@ public class UniverseBuilder {
         aUniverse.seal();
 
         try (Indent indent = debug.logAndIndent("build universe")) {
-            for (AnalysisType aType : aUniverse.getTypes()) {
+            for (BaseAnalysisType aType : aUniverse.getTypes()) {
                 makeType(aType);
             }
-            for (AnalysisType aType : aUniverse.getTypes()) {
+            for (BaseAnalysisType aType : aUniverse.getTypes()) {
                 /*
                  * Set enclosing type lazily to avoid cyclic dependency between interfaces and
                  * enclosing types. For example, in Scala an interface can extends its inner type.
@@ -179,11 +179,11 @@ public class UniverseBuilder {
         }
     }
 
-    private HostedType lookupType(AnalysisType aType) {
+    private HostedType lookupType(BaseAnalysisType aType) {
         return Objects.requireNonNull(hUniverse.types.get(aType));
     }
 
-    private HostedType makeType(AnalysisType aType) {
+    private HostedType makeType(BaseAnalysisType aType) {
         if (aType == null) {
             return null;
         }
@@ -200,7 +200,7 @@ public class UniverseBuilder {
         assert !typeName.contains("/analysis/meta/") : "Analysis meta object in image " + typeName;
         assert !typeName.contains("/hosted/meta/") : "Hosted meta object in image " + typeName;
 
-        AnalysisType[] aInterfaces = aType.getInterfaces();
+        BaseAnalysisType[] aInterfaces = aType.getInterfaces();
         HostedInterface[] sInterfaces = new HostedInterface[aInterfaces.length];
         for (int i = 0; i < aInterfaces.length; i++) {
             sInterfaces[i] = (HostedInterface) makeType(aInterfaces[i]);
@@ -246,7 +246,7 @@ public class UniverseBuilder {
 
         DynamicHub hub = hType.getHub();
         Class<?> hostedJavaClass = hub.getHostedJavaClass();
-        AnalysisType aTypeChecked = aMetaAccess.lookupJavaType(hostedJavaClass);
+        BaseAnalysisType aTypeChecked = aMetaAccess.lookupJavaType(hostedJavaClass);
         HostedType hTypeChecked = hMetaAccess.lookupJavaType(hostedJavaClass);
         if (!sameObject(aType, aTypeChecked) || !sameObject(hTypeChecked, hType)) {
             throw VMError.shouldNotReachHere("Type mismatch when performing round-trip HostedType/AnalysisType -> DynamicHub -> java.lang.Class -> HostedType/AnalysisType: " + System.lineSeparator() +
@@ -278,8 +278,8 @@ public class UniverseBuilder {
         for (int i = 0; i < aHandlers.length; i++) {
             ExceptionHandler h = aHandlers[i];
             JavaType catchType = h.getCatchType();
-            if (h.getCatchType() instanceof AnalysisType) {
-                catchType = lookupType((AnalysisType) catchType);
+            if (h.getCatchType() instanceof BaseAnalysisType) {
+                catchType = lookupType((BaseAnalysisType) catchType);
             } else {
                 assert catchType == null || catchType instanceof UnresolvedJavaType;
             }
@@ -314,9 +314,9 @@ public class UniverseBuilder {
             hUniverse.signatures.put(aSignature, hSignature);
 
             for (int i = 0; i < aSignature.getParameterCount(false); i++) {
-                lookupType((AnalysisType) aSignature.getParameterType(i, null));
+                lookupType((BaseAnalysisType) aSignature.getParameterType(i, null));
             }
-            lookupType((AnalysisType) aSignature.getReturnType(null));
+            lookupType((BaseAnalysisType) aSignature.getReturnType(null));
         }
         return hSignature;
     }
@@ -374,10 +374,10 @@ public class UniverseBuilder {
         HostedConfiguration.instance().collectMonitorFieldInfo(analysis, hUniverse, getImmutableTypes());
     }
 
-    private Set<AnalysisType> getImmutableTypes() {
-        Set<AnalysisType> immutableTypes = new HashSet<>();
+    private Set<BaseAnalysisType> getImmutableTypes() {
+        Set<BaseAnalysisType> immutableTypes = new HashSet<>();
         for (Class<?> immutableType : IMMUTABLE_TYPES) {
-            Optional<AnalysisType> aType = aMetaAccess.optionalLookupJavaType(immutableType);
+            Optional<BaseAnalysisType> aType = aMetaAccess.optionalLookupJavaType(immutableType);
             aType.ifPresent(immutableTypes::add);
         }
         return immutableTypes;

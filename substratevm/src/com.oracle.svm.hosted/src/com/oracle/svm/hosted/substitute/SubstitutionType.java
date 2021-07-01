@@ -27,7 +27,7 @@ package com.oracle.svm.hosted.substitute;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
 import com.oracle.svm.hosted.c.GraalAccess;
 
 import jdk.vm.ci.common.JVMCIError;

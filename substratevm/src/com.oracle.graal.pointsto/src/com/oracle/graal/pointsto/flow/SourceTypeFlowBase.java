@@ -27,9 +27,9 @@ package com.oracle.graal.pointsto.flow;
 import org.graalvm.compiler.nodes.ValueNode;
 
 import com.oracle.graal.pointsto.BigBang;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError;
 
 import jdk.vm.ci.code.BytecodePosition;
 
@@ -69,7 +69,7 @@ public abstract class SourceTypeFlowBase extends TypeFlow<BytecodePosition> {
         this(node, state.exactType(), state);
     }
 
-    public SourceTypeFlowBase(ValueNode node, AnalysisType declaredType, TypeState state) {
+    public SourceTypeFlowBase(ValueNode node, BaseAnalysisType declaredType, TypeState state) {
         super(node.getNodeSourcePosition(), declaredType);
         this.sourceState = state;
     }

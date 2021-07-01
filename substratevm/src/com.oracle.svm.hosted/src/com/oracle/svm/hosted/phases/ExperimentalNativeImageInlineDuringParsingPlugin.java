@@ -68,8 +68,8 @@ import org.graalvm.nativeimage.ImageSingletons;
 import org.graalvm.util.GuardedAnnotationAccess;
 
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.ParsingReason;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.annotate.DeoptTest;
@@ -206,7 +206,7 @@ public class ExperimentalNativeImageInlineDuringParsingPlugin implements InlineI
                 }
 
                 if (!aMethod.isStatic() && args[0].isConstant()) {
-                    AnalysisType receiverType = (AnalysisType) StampTool.typeOrNull(args[0]);
+                    BaseAnalysisType receiverType = (BaseAnalysisType) StampTool.typeOrNull(args[0]);
                     if (receiverType != null) {
                         receiverType.registerAsInHeap();
                     }

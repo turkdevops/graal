@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.meta.JavaKind;
@@ -60,11 +60,11 @@ public class FieldTypeFlow extends TypeFlow<AnalysisField> {
     /** A filter flow used for unsafe writes. */
     private volatile FieldFilterTypeFlow filterFlow;
 
-    public FieldTypeFlow(AnalysisField field, AnalysisType type) {
+    public FieldTypeFlow(AnalysisField field, BaseAnalysisType type) {
         super(field, type, initialFieldState(field));
     }
 
-    public FieldTypeFlow(AnalysisField field, AnalysisType type, AnalysisObject object) {
+    public FieldTypeFlow(AnalysisField field, BaseAnalysisType type, AnalysisObject object) {
         this(field, type);
         this.object = object;
     }

@@ -24,13 +24,13 @@
  */
 package com.oracle.svm.hosted.meta;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.meta.JavaKind;
 
 public class HostedPrimitiveType extends HostedType {
 
-    public HostedPrimitiveType(HostedUniverse universe, AnalysisType wrapped, JavaKind kind, JavaKind storageKind) {
+    public HostedPrimitiveType(HostedUniverse universe, BaseAnalysisType wrapped, JavaKind kind, JavaKind storageKind) {
         super(universe, wrapped, kind, storageKind, null, new HostedInterface[0], false);
     }
 

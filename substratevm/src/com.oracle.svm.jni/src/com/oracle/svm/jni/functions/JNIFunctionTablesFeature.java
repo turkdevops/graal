@@ -36,10 +36,10 @@ import org.graalvm.nativeimage.c.function.CFunctionPointer;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.util.GuardedAnnotationAccess;
 
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.FrameAccess;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.c.function.CEntryPointOptions;
@@ -116,15 +116,15 @@ public class JNIFunctionTablesFeature implements Feature {
         JNIFunctionTables.create();
 
         NativeLibraries nativeLibraries = access.getNativeLibraries();
-        AnalysisType invokeInterface = metaAccess.lookupJavaType(JNIInvokeInterface.class);
+        BaseAnalysisType invokeInterface = metaAccess.lookupJavaType(JNIInvokeInterface.class);
         invokeInterfaceMetadata = (StructInfo) nativeLibraries.findElementInfo(invokeInterface);
-        AnalysisType functionTable = metaAccess.lookupJavaType(JNINativeInterface.class);
+        BaseAnalysisType functionTable = metaAccess.lookupJavaType(JNINativeInterface.class);
         functionTableMetadata = (StructInfo) nativeLibraries.findElementInfo(functionTable);
 
         // Manually add functions as entry points so this is only done when JNI features are enabled
-        AnalysisType invokes = metaAccess.lookupJavaType(JNIInvocationInterface.class);
-        AnalysisType exports = metaAccess.lookupJavaType(JNIInvocationInterface.Exports.class);
-        AnalysisType functions = metaAccess.lookupJavaType(JNIFunctions.class);
+        BaseAnalysisType invokes = metaAccess.lookupJavaType(JNIInvocationInterface.class);
+        BaseAnalysisType exports = metaAccess.lookupJavaType(JNIInvocationInterface.Exports.class);
+        BaseAnalysisType functions = metaAccess.lookupJavaType(JNIFunctions.class);
         Stream<AnalysisMethod> analysisMethods = Stream.of(invokes, functions, exports).flatMap(type -> Stream.of(type.getDeclaredMethods()));
         Stream<AnalysisMethod> unimplementedMethods = Stream.of((AnalysisMethod) getSingleMethod(metaAccess, UnimplementedWithJNIEnvArgument.class),
                         (AnalysisMethod) getSingleMethod(metaAccess, UnimplementedWithJavaVMArgument.class));

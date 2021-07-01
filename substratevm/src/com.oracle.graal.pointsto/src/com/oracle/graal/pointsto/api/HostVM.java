@@ -27,22 +27,21 @@ package com.oracle.graal.pointsto.api;
 import java.util.Optional;
 import java.util.concurrent.ForkJoinPool;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import org.graalvm.compiler.core.common.spi.ForeignCallDescriptor;
 import org.graalvm.compiler.core.common.spi.ForeignCallsProvider;
 import org.graalvm.compiler.java.GraphBuilderPhase;
 import org.graalvm.compiler.nodes.StructuredGraph;
 import org.graalvm.compiler.nodes.graphbuilderconf.GraphBuilderConfiguration;
 import org.graalvm.compiler.nodes.graphbuilderconf.IntrinsicContext;
-import org.graalvm.compiler.options.OptionValues;
 import org.graalvm.compiler.phases.OptimisticOptimizations;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.flow.AnalysisParsedGraph;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.graal.pointsto.phases.InlineBeforeAnalysisPolicy;
 
 import jdk.vm.ci.meta.ResolvedJavaMethod;
@@ -51,27 +50,19 @@ import jdk.vm.ci.meta.ResolvedJavaType;
 /**
  * This is an interface for the functionality that the hosting VM must support.
  */
-public interface HostVM {
-
-    OptionValues options();
+public interface HostVM extends com.oracle.graal.analysis.api.HostVM {
 
     ForkJoinPool executor();
 
-    boolean isRelocatedPointer(Object originalObject);
-
-    void clearInThread();
-
-    void installInThread(Object vmConfig);
-
     Object getConfiguration();
 
-    void checkForbidden(AnalysisType type, AnalysisType.UsageKind kind);
+    void checkForbidden(BaseAnalysisType type, BaseAnalysisType.UsageKind kind);
 
-    void registerType(AnalysisType newValue);
+    void registerType(BaseAnalysisType newValue);
 
-    void initializeType(AnalysisType newValue);
+    void initializeType(BaseAnalysisType newValue);
 
-    boolean isInitialized(AnalysisType type);
+    boolean isInitialized(BaseAnalysisType type);
 
     /**
      * Hook to change the {@link GraphBuilderConfiguration} used for parsing a method during
@@ -121,10 +112,5 @@ public interface HostVM {
     default InlineBeforeAnalysisPolicy<?> inlineBeforeAnalysisPolicy() {
         /* No inlining by the static analysis unless explicitly overwritten by the VM. */
         return InlineBeforeAnalysisPolicy.NO_INLINING;
-    }
-
-    @SuppressWarnings("unused")
-    default boolean skipInterface(AnalysisUniverse universe, ResolvedJavaType interfaceType, ResolvedJavaType implementingType) {
-        return false;
     }
 }

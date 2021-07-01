@@ -28,7 +28,7 @@ import org.graalvm.compiler.nodes.ParameterNode;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -40,7 +40,7 @@ public class FormalParamTypeFlow extends TypeFlow<BytecodePosition> {
     /** The position of the parameter in the method signature. */
     protected final int position;
 
-    public FormalParamTypeFlow(ParameterNode source, AnalysisType declaredType, AnalysisMethod method, int position) {
+    public FormalParamTypeFlow(ParameterNode source, BaseAnalysisType declaredType, AnalysisMethod method, int position) {
         super(source.getNodeSourcePosition(), declaredType);
         this.position = position;
         this.method = method;

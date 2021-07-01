@@ -34,7 +34,7 @@ import org.graalvm.compiler.options.OptionValues;
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 public class SingleTypeState extends TypeState {
 
@@ -107,13 +107,13 @@ public class SingleTypeState extends TypeState {
     }
 
     @Override
-    public AnalysisType exactType() {
+    public BaseAnalysisType exactType() {
         return objects[0].type();
     }
 
     @Override
-    protected Iterator<AnalysisType> typesIterator() {
-        return new Iterator<AnalysisType>() {
+    protected Iterator<BaseAnalysisType> typesIterator() {
+        return new Iterator<BaseAnalysisType>() {
 
             boolean hasNext = true;
 
@@ -123,7 +123,7 @@ public class SingleTypeState extends TypeState {
             }
 
             @Override
-            public AnalysisType next() {
+            public BaseAnalysisType next() {
                 hasNext = false;
                 return exactType();
             }
@@ -131,7 +131,7 @@ public class SingleTypeState extends TypeState {
     }
 
     @Override
-    public boolean containsType(AnalysisType exactType) {
+    public boolean containsType(BaseAnalysisType exactType) {
         return exactType().equals(exactType);
     }
 
@@ -146,12 +146,12 @@ public class SingleTypeState extends TypeState {
     }
 
     @Override
-    public AnalysisObject[] objectsArray(AnalysisType type) {
+    public AnalysisObject[] objectsArray(BaseAnalysisType type) {
         return exactType().equals(type) ? objects : null;
     }
 
     @Override
-    protected Iterator<AnalysisObject> objectsIterator(AnalysisType type) {
+    protected Iterator<AnalysisObject> objectsIterator(BaseAnalysisType type) {
         return new Iterator<AnalysisObject>() {
             private boolean typesEqual = exactType().equals(type);
             private int idx = 0;
@@ -174,7 +174,7 @@ public class SingleTypeState extends TypeState {
     }
 
     @Override
-    public TypeState exactTypeState(BigBang bb, AnalysisType exactType) {
+    public TypeState exactTypeState(BigBang bb, BaseAnalysisType exactType) {
         if (this.containsType(exactType)) {
             return this;
         } else {

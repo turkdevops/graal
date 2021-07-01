@@ -28,7 +28,7 @@ import org.graalvm.compiler.nodes.ValueNode;
 import org.graalvm.compiler.nodes.graphbuilderconf.GraphBuilderContext;
 import org.graalvm.compiler.nodes.graphbuilderconf.NodePlugin;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.meta.JavaConstant;
 import jdk.vm.ci.meta.ResolvedJavaMethod;
@@ -54,7 +54,7 @@ public final class ScalaAnalysisPlugin implements NodePlugin {
         if (method.getDeclaringClass().getName().equals("Lscala/reflect/ClassTag$;") && method.getName().equals("apply") && args.length == 2) {
             JavaConstant clazzConstant = args[1].asJavaConstant();
             if (clazzConstant != null) {
-                AnalysisType type = (AnalysisType) b.getConstantReflection().asJavaType(clazzConstant);
+                BaseAnalysisType type = (BaseAnalysisType) b.getConstantReflection().asJavaType(clazzConstant);
                 for (int i = 0; i < SUPPORTED_LEVEL_OF_NESTED_ARRAYS; i++) {
                     type = type.getArrayClass();
                     type.registerAsInHeap();

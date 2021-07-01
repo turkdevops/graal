@@ -45,8 +45,8 @@ import org.graalvm.compiler.phases.OptimisticOptimizations;
 import org.graalvm.compiler.replacements.SnippetTemplate;
 import org.graalvm.compiler.word.WordTypes;
 
-import com.oracle.graal.pointsto.constraints.TypeInstantiationException;
-import com.oracle.graal.pointsto.constraints.UnresolvedElementException;
+import com.oracle.graal.analysis.constraints.TypeInstantiationException;
+import com.oracle.graal.analysis.constraints.UnresolvedElementException;
 import com.oracle.svm.core.SubstrateUtil;
 import com.oracle.svm.core.annotate.Uninterruptible;
 import com.oracle.svm.core.deopt.DeoptimizationSupport;

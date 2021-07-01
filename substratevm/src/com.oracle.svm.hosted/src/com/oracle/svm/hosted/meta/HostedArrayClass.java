@@ -24,7 +24,7 @@
  */
 package com.oracle.svm.hosted.meta;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.meta.JavaKind;
 
@@ -34,7 +34,7 @@ public class HostedArrayClass extends HostedClass {
     private final HostedType baseType;
     private final int arrayDepth;
 
-    public HostedArrayClass(HostedUniverse universe, AnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedClass superClass, HostedInterface[] interfaces, HostedType componentType) {
+    public HostedArrayClass(HostedUniverse universe, BaseAnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedClass superClass, HostedInterface[] interfaces, HostedType componentType) {
         super(universe, wrapped, kind, storageKind, superClass, interfaces, true);
         this.componentType = componentType;
 

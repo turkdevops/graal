@@ -38,7 +38,7 @@ import javax.management.MBeanServerConnection;
 
 import org.graalvm.nativeimage.hosted.Feature;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.image.DisallowedImageHeapObjects;

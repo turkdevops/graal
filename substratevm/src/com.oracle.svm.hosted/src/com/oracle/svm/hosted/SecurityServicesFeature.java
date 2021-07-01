@@ -776,7 +776,7 @@ public class SecurityServicesFeature extends JNIRegistrationUtil implements Feat
                     DuringAnalysisAccessImpl access = (DuringAnalysisAccessImpl) a;
                     AnalysisMethod analysisMethod = access.getMetaAccess().lookupJavaMethod(method);
                     String msg = String.format("Service factory method %s is reachable.%n", analysisMethod.format("%H.%n(%P)"));
-                    msg += String.format("%sAnalysis parsing context: %s", indent, ReportUtils.parsingContext(analysisMethod, indent + "    "));
+                    msg += String.format("%sAnalysis parsing context: %s", indent, com.oracle.graal.analysis.reports.ReportUtils.parsingContext(analysisMethod, indent + "    "));
                     msg += String.format("%sReachability of %s service type API triggers registration of following services:%n", indent, serviceType);
                     return msg;
                 });

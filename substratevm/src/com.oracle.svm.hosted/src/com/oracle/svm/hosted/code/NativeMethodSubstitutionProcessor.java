@@ -34,8 +34,8 @@ import org.graalvm.nativeimage.c.constant.CConstant;
 import org.graalvm.nativeimage.c.function.CFunction;
 
 import com.oracle.graal.pointsto.infrastructure.GraphProvider;
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaMethod;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.analysis.infrastructure.WrappedJavaMethod;
 
 import jdk.vm.ci.meta.ResolvedJavaMethod;
 

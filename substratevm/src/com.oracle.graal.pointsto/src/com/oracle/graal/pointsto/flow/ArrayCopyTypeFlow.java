@@ -30,7 +30,7 @@ import org.graalvm.compiler.replacements.arraycopy.ArrayCopy;
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.context.object.AnalysisObject;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -46,7 +46,7 @@ public class ArrayCopyTypeFlow extends TypeFlow<BytecodePosition> {
     TypeFlow<?> srcArrayFlow;
     TypeFlow<?> dstArrayFlow;
 
-    public ArrayCopyTypeFlow(ValueNode source, AnalysisType declaredType, TypeFlow<?> srcArrayFlow, TypeFlow<?> dstArrayFlow) {
+    public ArrayCopyTypeFlow(ValueNode source, BaseAnalysisType declaredType, TypeFlow<?> srcArrayFlow, TypeFlow<?> dstArrayFlow) {
         super(source.getNodeSourcePosition(), declaredType);
         this.srcArrayFlow = srcArrayFlow;
         this.dstArrayFlow = dstArrayFlow;

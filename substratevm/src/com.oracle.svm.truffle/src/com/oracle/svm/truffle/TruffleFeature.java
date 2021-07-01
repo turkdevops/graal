@@ -129,8 +129,8 @@ import org.graalvm.nativeimage.hosted.RuntimeReflection;
 
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.ParsingReason;
 import com.oracle.svm.core.annotate.Alias;
 import com.oracle.svm.core.annotate.Delete;
@@ -626,7 +626,7 @@ public final class TruffleFeature implements com.oracle.svm.core.graal.GraalFeat
             access.requireAnalysisIteration();
         }
 
-        for (AnalysisType type : ((DuringAnalysisAccessImpl) access).getStaticAnalysisEngine().getUniverse().getTypes()) {
+        for (BaseAnalysisType type : ((DuringAnalysisAccessImpl) access).getStaticAnalysisEngine().getUniverse().getTypes()) {
             if (!access.isReachable(type.getJavaClass())) {
                 continue;
             }
@@ -641,7 +641,7 @@ public final class TruffleFeature implements com.oracle.svm.core.graal.GraalFeat
      *
      * @see #registerTruffleLibrariesAsInHeap
      */
-    private static void initializeTruffleLibrariesAtBuildTime(AnalysisType type) {
+    private static void initializeTruffleLibrariesAtBuildTime(BaseAnalysisType type) {
         if (type.isAnnotationPresent(GenerateLibrary.class)) {
             /* Eagerly resolve library type. */
             LibraryFactory.resolve(type.getJavaClass().asSubclass(Library.class));
@@ -655,7 +655,7 @@ public final class TruffleFeature implements com.oracle.svm.core.graal.GraalFeat
     private final Set<Class<?>> dynamicObjectClasses = new HashSet<>();
 
     @SuppressWarnings("deprecation")
-    private void initializeDynamicObjectLayouts(AnalysisType type) {
+    private void initializeDynamicObjectLayouts(BaseAnalysisType type) {
         if (type.isInstantiated()) {
             Class<?> javaClass = type.getJavaClass();
             if (DynamicObject.class.isAssignableFrom(javaClass) && dynamicObjectClasses.add(javaClass)) {

@@ -41,7 +41,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
+import com.oracle.graal.analysis.mutable.MutableAnalysisMethod;
 import org.graalvm.compiler.debug.DebugContext;
 import org.graalvm.compiler.java.BytecodeParser.BytecodeParserError;
 import org.graalvm.compiler.nodes.StructuredGraph;
@@ -50,17 +53,16 @@ import org.graalvm.util.GuardedAnnotationAccess;
 
 import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.api.PointstoOptions;
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
 import com.oracle.graal.pointsto.flow.AbstractVirtualInvokeTypeFlow;
 import com.oracle.graal.pointsto.flow.AnalysisParsedGraph;
 import com.oracle.graal.pointsto.flow.InvokeTypeFlow;
 import com.oracle.graal.pointsto.flow.MethodTypeFlow;
 import com.oracle.graal.pointsto.infrastructure.GraphProvider;
-import com.oracle.graal.pointsto.infrastructure.OriginalMethodProvider;
-import com.oracle.graal.pointsto.infrastructure.WrappedJavaMethod;
-import com.oracle.graal.pointsto.infrastructure.WrappedSignature;
+import com.oracle.graal.analysis.infrastructure.OriginalMethodProvider;
+import com.oracle.graal.analysis.infrastructure.WrappedSignature;
 import com.oracle.graal.pointsto.results.StaticAnalysisResults;
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError;
 import com.oracle.graal.pointsto.util.AtomicUtils;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -76,7 +78,7 @@ import jdk.vm.ci.meta.ResolvedJavaMethod;
 import jdk.vm.ci.meta.ResolvedJavaType;
 import jdk.vm.ci.meta.SpeculationLog;
 
-public class AnalysisMethod implements WrappedJavaMethod, GraphProvider, OriginalMethodProvider {
+public class AnalysisMethod implements MutableAnalysisMethod, GraphProvider, OriginalMethodProvider {
 
     private final AnalysisUniverse universe;
     public final ResolvedJavaMethod wrapped;
@@ -87,7 +89,7 @@ public class AnalysisMethod implements WrappedJavaMethod, GraphProvider, Origina
     private final LocalVariableTable localVariableTable;
     private final String qualifiedName;
     private MethodTypeFlow typeFlow;
-    private final AnalysisType declaringClass;
+    private final BaseAnalysisType declaringClass;
 
     private final AtomicBoolean isRootMethod = new AtomicBoolean();
     private boolean isIntrinsicMethod;
@@ -140,7 +142,7 @@ public class AnalysisMethod implements WrappedJavaMethod, GraphProvider, Origina
                 for (int i = 0; i < newLocals.length; ++i) {
                     Local origLocal = origLocals[i];
                     ResolvedJavaType origLocalType = origLocal.getType() instanceof ResolvedJavaType ? (ResolvedJavaType) origLocal.getType() : origLocal.getType().resolve(accessingClass);
-                    AnalysisType type = universe.lookup(origLocalType);
+                    BaseAnalysisType type = universe.lookup(origLocalType);
                     newLocals[i] = new Local(origLocal.getName(), type, origLocal.getStartBCI(), origLocal.getEndBCI(), origLocal.getSlot());
                 }
                 newLocalVariableTable = new LocalVariableTable(newLocals);
@@ -369,7 +371,7 @@ public class AnalysisMethod implements WrappedJavaMethod, GraphProvider, Origina
     }
 
     @Override
-    public AnalysisType getDeclaringClass() {
+    public BaseAnalysisType getDeclaringClass() {
         return declaringClass;
     }
 

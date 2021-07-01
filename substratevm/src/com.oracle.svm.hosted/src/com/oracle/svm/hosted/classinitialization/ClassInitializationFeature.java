@@ -45,13 +45,13 @@ import org.graalvm.compiler.graph.Node;
 import org.graalvm.compiler.options.OptionValues;
 import org.graalvm.compiler.phases.util.Providers;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatureException;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatureException;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.graal.pointsto.reports.ReportUtils;
-import com.oracle.graal.pointsto.util.Timer;
+import com.oracle.graal.analysis.util.Timer;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.classinitialization.ClassInitializationInfo;
@@ -168,7 +168,7 @@ public class ClassInitializationFeature implements GraalFeature {
          */
         classInitializationSupport.checkDelayedInitialization();
 
-        for (AnalysisType type : access.getUniverse().getTypes()) {
+        for (BaseAnalysisType type : access.getUniverse().getTypes()) {
             if (type.isReachable()) {
                 DynamicHub hub = access.getHostVM().dynamicHub(type);
                 if (hub.getClassInitializationInfo() == null) {
@@ -258,7 +258,7 @@ public class ClassInitializationFeature implements GraalFeature {
         }
     }
 
-    private static boolean isRelevantForPrinting(AnalysisType type) {
+    private static boolean isRelevantForPrinting(BaseAnalysisType type) {
         return !type.isPrimitive() && !type.isArray() && type.isReachable();
     }
 
@@ -278,7 +278,7 @@ public class ClassInitializationFeature implements GraalFeature {
                         .filter(t -> metaAccess.lookupJavaType(t).isReachable())
                         .filter(t -> classInitializationSupport.canBeProvenSafe(t))
                         .forEach(c -> {
-                            AnalysisType type = metaAccess.lookupJavaType(c);
+                            BaseAnalysisType type = metaAccess.lookupJavaType(c);
                             if (!initGraph.isUnsafe(type)) {
                                 classInitializationSupport.forceInitializeHosted(c, "proven safe to initialize", true);
                                 /*
@@ -305,7 +305,7 @@ public class ClassInitializationFeature implements GraalFeature {
         classInitializationSupport.checkDelayedInitialization();
     }
 
-    private void buildClassInitializationInfo(FeatureImpl.DuringAnalysisAccessImpl access, AnalysisType type, DynamicHub hub) {
+    private void buildClassInitializationInfo(FeatureImpl.DuringAnalysisAccessImpl access, BaseAnalysisType type, DynamicHub hub) {
         ClassInitializationInfo info;
         if (classInitializationSupport.shouldInitializeAtRuntime(type)) {
             info = buildRuntimeInitializationInfo(access, type);
@@ -316,7 +316,7 @@ public class ClassInitializationFeature implements GraalFeature {
         hub.setClassInitializationInfo(info, type.hasDefaultMethods(), type.declaresDefaultMethods());
     }
 
-    private static ClassInitializationInfo buildRuntimeInitializationInfo(FeatureImpl.DuringAnalysisAccessImpl access, AnalysisType type) {
+    private static ClassInitializationInfo buildRuntimeInitializationInfo(FeatureImpl.DuringAnalysisAccessImpl access, BaseAnalysisType type) {
         assert !type.isInitialized();
         try {
             /*

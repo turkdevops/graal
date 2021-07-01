@@ -37,11 +37,11 @@ import com.oracle.graal.pointsto.flow.FieldTypeFlow;
 import com.oracle.graal.pointsto.flow.UnsafeWriteSinkTypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.graal.pointsto.typestore.ArrayElementsTypeStore;
 import com.oracle.graal.pointsto.typestore.FieldTypeStore;
-import com.oracle.graal.pointsto.util.AnalysisError;
+import com.oracle.graal.analysis.util.AnalysisError;
 
 import jdk.vm.ci.meta.JavaConstant;
 import jdk.vm.ci.meta.JavaKind;
@@ -75,8 +75,8 @@ public class AnalysisObject implements Comparable<AnalysisObject> {
      */
     protected final long id;
 
-    /** The {@linkplain AnalysisType concrete type} of an analysis object. */
-    protected final AnalysisType type;
+    /** The {@linkplain BaseAnalysisType concrete type} of an analysis object. */
+    protected final BaseAnalysisType type;
 
     protected final AnalysisObjectKind kind;
 
@@ -99,7 +99,7 @@ public class AnalysisObject implements Comparable<AnalysisObject> {
     /**
      * By default an analysis object is context insensitive.
      */
-    public AnalysisObject(AnalysisUniverse universe, AnalysisType type) {
+    public AnalysisObject(AnalysisUniverse universe, BaseAnalysisType type) {
         this(universe, type, AnalysisObjectKind.ContextInsensitive);
     }
 
@@ -107,7 +107,7 @@ public class AnalysisObject implements Comparable<AnalysisObject> {
      * Constructor allowing the subclasses to specify the type of context sensitivity they
      * implement.
      */
-    protected AnalysisObject(AnalysisUniverse universe, AnalysisType type, AnalysisObjectKind kind) {
+    protected AnalysisObject(AnalysisUniverse universe, BaseAnalysisType type, AnalysisObjectKind kind) {
         this.id = createId(type.getId());
         this.type = type;
         this.kind = kind;
@@ -136,7 +136,7 @@ public class AnalysisObject implements Comparable<AnalysisObject> {
         return (int) (id >> 32);
     }
 
-    public AnalysisType type() {
+    public BaseAnalysisType type() {
         return this.type;
     }
 

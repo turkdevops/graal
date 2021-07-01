@@ -27,7 +27,7 @@ package com.oracle.graal.pointsto.flow;
 import org.graalvm.compiler.nodes.ValueNode;
 
 import com.oracle.graal.pointsto.BigBang;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -37,7 +37,7 @@ public class NullCheckTypeFlow extends TypeFlow<BytecodePosition> {
     /** If true, lets anything but null pass through. If false only null passes through. */
     private final boolean blockNull;
 
-    public NullCheckTypeFlow(ValueNode node, AnalysisType inputType, boolean blockNull) {
+    public NullCheckTypeFlow(ValueNode node, BaseAnalysisType inputType, boolean blockNull) {
         /*
          * OffsetLoadTypeFlow reflects the state of the receiver array or unsafe read object. Null
          * check type flow filters based on the values that can be written to the object.

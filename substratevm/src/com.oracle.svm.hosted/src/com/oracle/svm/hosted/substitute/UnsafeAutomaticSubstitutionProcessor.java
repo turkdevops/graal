@@ -72,8 +72,8 @@ import org.graalvm.compiler.phases.tiers.HighTierContext;
 import org.graalvm.compiler.serviceprovider.JavaVersionUtil;
 import org.graalvm.nativeimage.hosted.Feature;
 
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.ParsingReason;
 import com.oracle.svm.core.SubstrateUtil;
 import com.oracle.svm.core.annotate.AutomaticFeature;
@@ -295,12 +295,12 @@ public class UnsafeAutomaticSubstitutionProcessor extends SubstitutionProcessor 
      * field offset computation as unsafe accessed. Operations that lookup fields/methods/types in
      * the analysis universe cannot be executed while the substitution is computed. The call to
      * {@link #computeSubstitutions} is made from
-     * com.oracle.graal.pointsto.meta.AnalysisUniverse#createType(ResolvedJavaType), before the type
-     * is published. Thus if there is a circular dependency between the processed type and one of
-     * the fields/methods/types that it needs to access it might lead to a deadlock in
-     * {@link AnalysisType} creation. The automatic substitutions for an {@link AnalysisType} are
-     * computed just after the type is created but before it is published to other threads so that
-     * all threads see the substitutions.
+     * com.oracle.graal.analysis.domain.AnalysisUniverse#createType(ResolvedJavaType), before the
+     * type is published. Thus if there is a circular dependency between the processed type and one
+     * of the fields/methods/types that it needs to access it might lead to a deadlock in
+     * {@link BaseAnalysisType} creation. The automatic substitutions for an
+     * {@link BaseAnalysisType} are computed just after the type is created but before it is
+     * published to other threads so that all threads see the substitutions.
      */
     void processComputedValueFields(DuringAnalysisAccessImpl access) {
         for (ResolvedJavaField field : fieldSubstitutions.values()) {

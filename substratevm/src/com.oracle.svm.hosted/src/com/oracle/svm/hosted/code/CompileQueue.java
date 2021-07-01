@@ -117,12 +117,12 @@ import org.graalvm.nativeimage.ImageSingletons;
 
 import com.oracle.graal.pointsto.infrastructure.GraphProvider.Purpose;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.graal.pointsto.phases.SubstrateIntrinsicGraphBuilder;
-import com.oracle.graal.pointsto.util.CompletionExecutor;
-import com.oracle.graal.pointsto.util.CompletionExecutor.DebugContextRunnable;
-import com.oracle.graal.pointsto.util.Timer;
-import com.oracle.graal.pointsto.util.Timer.StopTimer;
+import com.oracle.graal.analysis.util.CompletionExecutor;
+import com.oracle.graal.analysis.util.CompletionExecutor.DebugContextRunnable;
+import com.oracle.graal.analysis.util.Timer;
+import com.oracle.graal.analysis.util.Timer.StopTimer;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.annotate.AlwaysInlineAllCallees;
 import com.oracle.svm.core.annotate.AlwaysInlineSelectCallees;

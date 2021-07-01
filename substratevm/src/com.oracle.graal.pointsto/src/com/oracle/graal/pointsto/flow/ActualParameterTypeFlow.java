@@ -26,14 +26,14 @@ package com.oracle.graal.pointsto.flow;
 
 import org.graalvm.compiler.nodes.ValueNode;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 /**
  * A sink type flow for the context insensitive invoke used to link in parameters in each caller
  * context.
  */
 public class ActualParameterTypeFlow extends TypeFlow<ValueNode> {
-    public ActualParameterTypeFlow(AnalysisType declaredType) {
+    public ActualParameterTypeFlow(BaseAnalysisType declaredType) {
         super(null, declaredType);
     }
 

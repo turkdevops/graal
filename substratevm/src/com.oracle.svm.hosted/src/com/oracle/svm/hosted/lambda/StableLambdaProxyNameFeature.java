@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.SubstrateUtil;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.graal.GraalFeature;
@@ -54,7 +54,7 @@ final class StableLambdaProxyNameFeature implements GraalFeature {
         assert checkLambdaNames(((AfterAnalysisAccessImpl) access).getUniverse().getTypes());
     }
 
-    private static boolean checkLambdaNames(List<AnalysisType> types) {
+    private static boolean checkLambdaNames(List<BaseAnalysisType> types) {
         if (!SubstrateUtil.assertionsEnabled()) {
             throw new AssertionError("Expensive check: should only run with assertions enabled.");
         }
@@ -66,7 +66,7 @@ final class StableLambdaProxyNameFeature implements GraalFeature {
         /* Lambda names should be unique. */
         Set<String> lambdaNames = new HashSet<>();
         types.stream()
-                        .map(AnalysisType::getName)
+                        .map(BaseAnalysisType::getName)
                         .filter(x -> x.contains("$$Lambda$"))
                         .forEach(name -> {
                             if (lambdaNames.contains(name)) {

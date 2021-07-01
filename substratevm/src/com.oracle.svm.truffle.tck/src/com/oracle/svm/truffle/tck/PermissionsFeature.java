@@ -65,7 +65,7 @@ import org.graalvm.polyglot.io.FileSystem;
 
 import com.oracle.graal.pointsto.flow.InvokeTypeFlow;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
@@ -157,8 +157,8 @@ public class PermissionsFeature implements Feature {
     /**
      * Classes for reflective accesses which are opaque for permission analysis.
      */
-    private AnalysisType reflectionProxy;
-    private AnalysisType reflectionFieldAccessorFactory;
+    private BaseAnalysisType reflectionProxy;
+    private BaseAnalysisType reflectionFieldAccessorFactory;
 
     @Override
     public void duringSetup(DuringSetupAccess access) {
@@ -438,7 +438,7 @@ public class PermissionsFeature implements Feature {
      * Tests if the given {@link AnalysisMethod} comes from {@code ReflectionProxy} implementation.
      */
     private boolean isReflectionProxy(AnalysisMethod method) {
-        for (AnalysisType iface : method.getDeclaringClass().getInterfaces()) {
+        for (BaseAnalysisType iface : method.getDeclaringClass().getInterfaces()) {
             if (iface.equals(reflectionProxy)) {
                 return true;
             }
@@ -511,7 +511,7 @@ public class PermissionsFeature implements Feature {
      * @throws IllegalStateException if owner cannot be resolved
      */
     private static Set<AnalysisMethod> findMethods(NativeImageStaticAnalysisEngine analysis, Class<?> owner, Predicate<ResolvedJavaMethod> filter) {
-        AnalysisType clazz = analysis.getMetaAccess().lookupJavaType(owner);
+        BaseAnalysisType clazz = analysis.getMetaAccess().lookupJavaType(owner);
         if (clazz == null) {
             throw new IllegalStateException("Cannot resolve " + owner.getName() + ".");
         }
@@ -519,27 +519,28 @@ public class PermissionsFeature implements Feature {
     }
 
     /**
-     * Finds methods declared in {@code owner} {@link AnalysisType} using {@code filter} predicate.
+     * Finds methods declared in {@code owner} {@link BaseAnalysisType} using {@code filter}
+     * predicate.
      *
      * @param analysis the {@link NativeImageStaticAnalysisEngine}
-     * @param owner the {@link AnalysisType} which methods should be listed
+     * @param owner the {@link BaseAnalysisType} which methods should be listed
      * @param filter the predicate filtering methods declared in {@code owner}
      * @return the methods accepted by {@code filter}
      */
-    static Set<AnalysisMethod> findMethods(NativeImageStaticAnalysisEngine analysis, AnalysisType owner, Predicate<ResolvedJavaMethod> filter) {
+    static Set<AnalysisMethod> findMethods(NativeImageStaticAnalysisEngine analysis, BaseAnalysisType owner, Predicate<ResolvedJavaMethod> filter) {
         return findImpl(analysis, owner.getWrappedWithoutResolve().getDeclaredMethods(), filter);
     }
 
     /**
-     * Finds constructors declared in {@code owner} {@link AnalysisType} using {@code filter}
+     * Finds constructors declared in {@code owner} {@link BaseAnalysisType} using {@code filter}
      * predicate.
      *
      * @param analysis the {@link NativeImageStaticAnalysisEngine}
-     * @param owner the {@link AnalysisType} which constructors should be listed
+     * @param owner the {@link BaseAnalysisType} which constructors should be listed
      * @param filter the predicate filtering constructors declared in {@code owner}
      * @return the constructors accepted by {@code filter}
      */
-    static Set<AnalysisMethod> findConstructors(NativeImageStaticAnalysisEngine analysis, AnalysisType owner, Predicate<ResolvedJavaMethod> filter) {
+    static Set<AnalysisMethod> findConstructors(NativeImageStaticAnalysisEngine analysis, BaseAnalysisType owner, Predicate<ResolvedJavaMethod> filter) {
         return findImpl(analysis, owner.getWrappedWithoutResolve().getDeclaredConstructors(), filter);
     }
 
@@ -692,7 +693,7 @@ public class PermissionsFeature implements Feature {
         private final ImageClassLoader imageClassLoader;
 
         SafeServiceLoaderRecognizer(NativeImageStaticAnalysisEngine analysis, ImageClassLoader imageClassLoader) {
-            AnalysisType serviceLoaderIterator = analysis.getMetaAccess().lookupJavaType(loadOrFail("java.util.ServiceLoader$LazyIterator"));
+            BaseAnalysisType serviceLoaderIterator = analysis.getMetaAccess().lookupJavaType(loadOrFail("java.util.ServiceLoader$LazyIterator"));
             Set<AnalysisMethod> methods = findMethods(analysis, serviceLoaderIterator, (m) -> m.getName().equals("nextService"));
             if (methods.size() != 1) {
                 throw new IllegalStateException("Failed to lookup ServiceLoader$LazyIterator.nextService().");
@@ -704,7 +705,7 @@ public class PermissionsFeature implements Feature {
         @Override
         public boolean test(AnalysisMethod method, AnalysisMethod caller, LinkedHashSet<AnalysisMethod> trace) {
             if (nextService.equals(method)) {
-                AnalysisType instantiatedType = findInstantiatedType(trace);
+                BaseAnalysisType instantiatedType = findInstantiatedType(trace);
                 if (instantiatedType != null) {
                     if (!isRegiseredInServiceLoader(instantiatedType)) {
                         return true;
@@ -717,8 +718,8 @@ public class PermissionsFeature implements Feature {
         /**
          * Finds last constructor invocation.
          */
-        private AnalysisType findInstantiatedType(LinkedHashSet<AnalysisMethod> trace) {
-            AnalysisType res = null;
+        private BaseAnalysisType findInstantiatedType(LinkedHashSet<AnalysisMethod> trace) {
+            BaseAnalysisType res = null;
             for (AnalysisMethod m : trace) {
                 if ("<init>".equals(m.getName())) {
                     res = m.getDeclaringClass();
@@ -730,17 +731,17 @@ public class PermissionsFeature implements Feature {
         /**
          * Finds if the given type may be instantiated by ServiceLoader.
          */
-        private boolean isRegiseredInServiceLoader(AnalysisType type) {
+        private boolean isRegiseredInServiceLoader(BaseAnalysisType type) {
             String resource = String.format("META-INF/services/%s", type.toClassName());
             if (imageClassLoader.getClassLoader().getResource(resource) != null) {
                 return true;
             }
-            for (AnalysisType ifc : type.getInterfaces()) {
+            for (BaseAnalysisType ifc : type.getInterfaces()) {
                 if (isRegiseredInServiceLoader(ifc)) {
                     return true;
                 }
             }
-            AnalysisType superClz = type.getSuperclass();
+            BaseAnalysisType superClz = type.getSuperclass();
             if (superClz != null) {
                 return isRegiseredInServiceLoader(superClz);
             }

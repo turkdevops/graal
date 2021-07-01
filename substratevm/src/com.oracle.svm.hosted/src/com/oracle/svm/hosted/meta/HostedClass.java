@@ -24,13 +24,13 @@
  */
 package com.oracle.svm.hosted.meta;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.meta.JavaKind;
 
 public abstract class HostedClass extends HostedType {
 
-    public HostedClass(HostedUniverse universe, AnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedClass superClass, HostedInterface[] interfaces, boolean isCloneable) {
+    public HostedClass(HostedUniverse universe, BaseAnalysisType wrapped, JavaKind kind, JavaKind storageKind, HostedClass superClass, HostedInterface[] interfaces, boolean isCloneable) {
         super(universe, wrapped, kind, storageKind, superClass, interfaces, isCloneable);
     }
 

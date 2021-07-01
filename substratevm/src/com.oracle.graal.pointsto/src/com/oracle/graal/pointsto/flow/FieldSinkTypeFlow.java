@@ -25,12 +25,12 @@
 package com.oracle.graal.pointsto.flow;
 
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 /** A sink type flow for all the context sensitive flows of an analysis field. */
 public class FieldSinkTypeFlow extends FieldTypeFlow {
 
-    public FieldSinkTypeFlow(AnalysisField field, AnalysisType type) {
+    public FieldSinkTypeFlow(AnalysisField field, BaseAnalysisType type) {
         super(field, type);
     }
 

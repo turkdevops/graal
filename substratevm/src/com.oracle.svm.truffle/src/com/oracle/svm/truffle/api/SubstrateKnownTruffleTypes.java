@@ -26,7 +26,7 @@ package com.oracle.svm.truffle.api;
 
 import org.graalvm.compiler.truffle.compiler.substitutions.KnownTruffleTypes;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.heap.ReferenceInternals;
 import com.oracle.svm.core.heap.Target_java_lang_ref_Reference;
 
@@ -44,14 +44,14 @@ public final class SubstrateKnownTruffleTypes extends KnownTruffleTypes {
 
     @Override
     protected ResolvedJavaType lookupType(String className) {
-        AnalysisType type = (AnalysisType) super.lookupType(className);
+        BaseAnalysisType type = (BaseAnalysisType) super.lookupType(className);
         type.registerAsReachable();
         return type;
     }
 
     @Override
     protected ResolvedJavaType lookupType(Class<?> c) {
-        AnalysisType type = (AnalysisType) super.lookupType(c);
+        BaseAnalysisType type = (BaseAnalysisType) super.lookupType(c);
         type.registerAsReachable();
         return type;
     }

@@ -26,7 +26,7 @@ package com.oracle.svm.hosted.ameta;
 
 import org.graalvm.nativeimage.hosted.Feature;
 
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.hub.DynamicHub;
 import com.oracle.svm.hosted.FeatureImpl.DuringSetupAccessImpl;

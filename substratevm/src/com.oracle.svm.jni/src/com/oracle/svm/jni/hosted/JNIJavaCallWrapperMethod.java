@@ -69,8 +69,8 @@ import org.graalvm.nativeimage.c.struct.SizeOf;
 import org.graalvm.word.LocationIdentity;
 import org.graalvm.word.WordBase;
 
-import com.oracle.graal.pointsto.infrastructure.UniverseMetaAccess;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.UniverseMetaAccess;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.OS;
 import com.oracle.svm.core.graal.nodes.CEntryPointEnterNode;
 import com.oracle.svm.core.graal.nodes.CEntryPointLeaveNode;

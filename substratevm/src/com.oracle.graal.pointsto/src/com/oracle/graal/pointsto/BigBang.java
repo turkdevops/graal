@@ -24,7 +24,7 @@
  */
 package com.oracle.graal.pointsto;
 
-import static com.oracle.graal.pointsto.meta.AnalysisUniverse.ESTIMATED_NUMBER_OF_TYPES;
+import static com.oracle.graal.analysis.domain.AnalysisUniverse.ESTIMATED_NUMBER_OF_TYPES;
 import static jdk.vm.ci.common.JVMCIError.shouldNotReachHere;
 
 import java.io.PrintWriter;
@@ -44,6 +44,9 @@ import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
+import com.oracle.graal.analysis.HeapScanningPolicy;
+import com.oracle.graal.analysis.ObjectScanner;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import com.oracle.graal.pointsto.flow.FieldTypeFlow;
 import com.oracle.graal.pointsto.reports.StatisticsPrinter;
 import org.graalvm.compiler.api.replacements.SnippetReflectionProvider;
@@ -58,10 +61,10 @@ import org.graalvm.compiler.nodes.spi.Replacements;
 import org.graalvm.compiler.options.OptionValues;
 import org.graalvm.compiler.printer.GraalDebugHandlersFactory;
 
-import com.oracle.graal.pointsto.ObjectScanner.ReusableSet;
+import com.oracle.graal.analysis.ObjectScanner.ReusableSet;
 import com.oracle.graal.pointsto.api.HostVM;
 import com.oracle.graal.pointsto.api.PointstoOptions;
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatures;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatures;
 import com.oracle.graal.pointsto.flow.AllSynchronizedTypeFlow;
 import com.oracle.graal.pointsto.flow.MethodTypeFlow;
 import com.oracle.graal.pointsto.flow.MethodTypeFlowBuilder;
@@ -71,17 +74,17 @@ import com.oracle.graal.pointsto.flow.TypeFlow;
 import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.flow.context.AnalysisContextPolicy;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.graal.pointsto.typestate.PointsToStats;
 import com.oracle.graal.pointsto.typestate.TypeState;
-import com.oracle.graal.pointsto.util.CompletionExecutor;
-import com.oracle.graal.pointsto.util.CompletionExecutor.DebugContextRunnable;
-import com.oracle.graal.pointsto.util.Timer;
-import com.oracle.graal.pointsto.util.Timer.StopTimer;
+import com.oracle.graal.analysis.util.CompletionExecutor;
+import com.oracle.graal.analysis.util.CompletionExecutor.DebugContextRunnable;
+import com.oracle.graal.analysis.util.Timer;
+import com.oracle.graal.analysis.util.Timer.StopTimer;
 import com.oracle.svm.util.ImageGeneratorThreadMarker;
 
 import jdk.vm.ci.meta.ConstantReflectionProvider;
@@ -99,7 +102,7 @@ public abstract class BigBang implements StaticAnalysisEngine {
     private final HeapScanningPolicy heapScanningPolicy;
 
     /** The type of {@link java.lang.Object}. */
-    private final AnalysisType objectType;
+    private final BaseAnalysisType objectType;
     private TypeFlow<?> allSynchronizedTypeFlow;
 
     protected final AnalysisUniverse universe;
@@ -207,8 +210,8 @@ public abstract class BigBang implements StaticAnalysisEngine {
     }
 
     @Override
-    public AnalysisType[] skippedHeapTypes() {
-        return new AnalysisType[]{metaAccess.lookupJavaType(String.class)};
+    public BaseAnalysisType[] skippedHeapTypes() {
+        return new BaseAnalysisType[]{metaAccess.lookupJavaType(String.class)};
     }
 
     public Runnable getHeartbeatCallback() {
@@ -310,7 +313,7 @@ public abstract class BigBang implements StaticAnalysisEngine {
      * sensitive). However, the client of the analysis can opt that some types should be analyzed
      * without tracking concrete objects even when the analysis is context sensitive.
      */
-    public boolean trackConcreteAnalysisObjects(@SuppressWarnings("unused") AnalysisType type) {
+    public boolean trackConcreteAnalysisObjects(@SuppressWarnings("unused") BaseAnalysisType type) {
         return true;
     }
 
@@ -329,7 +332,7 @@ public abstract class BigBang implements StaticAnalysisEngine {
 
         ConstantObjectsProfiler.constantTypes.clear();
 
-        universe.getTypes().forEach(AnalysisType::cleanupAfterAnalysis);
+        universe.getTypes().forEach(BaseAnalysisType::cleanupAfterAnalysis);
         universe.getFields().forEach(AnalysisField::cleanupAfterAnalysis);
         universe.getMethods().forEach(AnalysisMethod::cleanupAfterAnalysis);
     }
@@ -367,31 +370,31 @@ public abstract class BigBang implements StaticAnalysisEngine {
         return unsupportedFeatures;
     }
 
-    public AnalysisType lookup(JavaType type) {
+    public BaseAnalysisType lookup(JavaType type) {
         return universe.lookup(type);
     }
 
-    public AnalysisType getObjectType() {
+    public BaseAnalysisType getObjectType() {
         return metaAccess.lookupJavaType(Object.class);
     }
 
-    public AnalysisType getObjectArrayType() {
+    public BaseAnalysisType getObjectArrayType() {
         return metaAccess.lookupJavaType(Object[].class);
     }
 
-    public AnalysisType getGraalNodeType() {
+    public BaseAnalysisType getGraalNodeType() {
         return metaAccess.lookupJavaType(org.graalvm.compiler.graph.Node.class);
     }
 
-    public AnalysisType getGraalNodeListType() {
+    public BaseAnalysisType getGraalNodeListType() {
         return metaAccess.lookupJavaType(org.graalvm.compiler.graph.NodeList.class);
     }
 
-    public AnalysisType getThrowableType() {
+    public BaseAnalysisType getThrowableType() {
         return metaAccess.lookupJavaType(Throwable.class);
     }
 
-    public AnalysisType getThreadType() {
+    public BaseAnalysisType getThreadType() {
         return metaAccess.lookupJavaType(Thread.class);
     }
 
@@ -445,7 +448,7 @@ public abstract class BigBang implements StaticAnalysisEngine {
                 offset = 1;
             }
             for (int i = offset; i < paramCount; i++) {
-                AnalysisType declaredParamType = (AnalysisType) aMethod.getSignature().getParameterType(i - offset, aMethod.getDeclaringClass());
+                BaseAnalysisType declaredParamType = (BaseAnalysisType) aMethod.getSignature().getParameterType(i - offset, aMethod.getDeclaringClass());
                 if (declaredParamType.getJavaKind() == JavaKind.Object) {
                     methodFlow.setInitialParameterFlow(this, declaredParamType, i);
                 }
@@ -469,14 +472,14 @@ public abstract class BigBang implements StaticAnalysisEngine {
     }
 
     @Override
-    public AnalysisType addRootClass(Class<?> clazz, boolean addFields, boolean addArrayClass) {
-        AnalysisType type = metaAccess.lookupJavaType(clazz);
+    public BaseAnalysisType addRootClass(Class<?> clazz, boolean addFields, boolean addArrayClass) {
+        BaseAnalysisType type = metaAccess.lookupJavaType(clazz);
         type.registerAsReachable();
         return addRootClass(type, addFields, addArrayClass);
     }
 
     @SuppressWarnings({"try"})
-    private AnalysisType addRootClass(AnalysisType type, boolean addFields, boolean addArrayClass) {
+    private BaseAnalysisType addRootClass(BaseAnalysisType type, boolean addFields, boolean addArrayClass) {
         try (Indent indent = debug.logAndIndent("add root class %s", type.getName())) {
             for (AnalysisField field : type.getInstanceFields(false)) {
                 if (addFields) {
@@ -501,8 +504,8 @@ public abstract class BigBang implements StaticAnalysisEngine {
 
     @Override
     @SuppressWarnings("try")
-    public AnalysisType addRootField(Class<?> clazz, String fieldName) {
-        AnalysisType type = addRootClass(clazz, false, false);
+    public BaseAnalysisType addRootField(Class<?> clazz, String fieldName) {
+        BaseAnalysisType type = addRootClass(clazz, false, false);
         for (AnalysisField field : type.getInstanceFields(true)) {
             if (field.getName().equals(fieldName)) {
                 try (Indent indent = debug.logAndIndent("add root field %s in class %s", fieldName, clazz.getName())) {
@@ -521,7 +524,7 @@ public abstract class BigBang implements StaticAnalysisEngine {
     }
 
     @SuppressWarnings("try")
-    public AnalysisType addSystemStaticField(Class<?> clazz, String fieldName) {
+    public BaseAnalysisType addSystemStaticField(Class<?> clazz, String fieldName) {
         addRootClass(clazz, false, false);
         Field reflectField;
         try {
@@ -678,7 +681,7 @@ public abstract class BigBang implements StaticAnalysisEngine {
         } else {
             objectScanner.scanBootImageHeapRoots(null, null);
         }
-        AnalysisType.updateAssignableTypes(this);
+        BaseAnalysisType.updateAssignableTypes(this);
     }
 
     @Override
@@ -711,17 +714,17 @@ public abstract class BigBang implements StaticAnalysisEngine {
 
     public static class ConstantObjectsProfiler {
 
-        static final ConcurrentHashMap<AnalysisType, MyInteger> constantTypes = new ConcurrentHashMap<>(ESTIMATED_NUMBER_OF_TYPES);
+        static final ConcurrentHashMap<BaseAnalysisType, MyInteger> constantTypes = new ConcurrentHashMap<>(ESTIMATED_NUMBER_OF_TYPES);
         static final int PROCESSED_CONSTANTS_DUMP_THRESHOLD = 100000;
         static final int CONSTANT_COUNTER_DUMP_THRESHOLD = 1000;
 
         static int processedConstants;
 
         static class ConstantCounterEntry {
-            protected AnalysisType type;
+            protected BaseAnalysisType type;
             protected int counter;
 
-            ConstantCounterEntry(AnalysisType type, int counter) {
+            ConstantCounterEntry(BaseAnalysisType type, int counter) {
                 this.type = type;
                 this.counter = counter;
             }
@@ -754,7 +757,7 @@ public abstract class BigBang implements StaticAnalysisEngine {
 
         static final ConstantCounterEntryComparator CONSTANT_COUNTER_COMPARATOR = new ConstantCounterEntryComparator();
 
-        public static void registerConstant(AnalysisType type) {
+        public static void registerConstant(BaseAnalysisType type) {
             processedConstants++;
             MyInteger counter = constantTypes.get(type);
             if (counter == null) {
@@ -772,8 +775,8 @@ public abstract class BigBang implements StaticAnalysisEngine {
                 processedConstants = 0;
 
                 List<ConstantCounterEntry> constantCounters = new ArrayList<>();
-                for (Map.Entry<AnalysisType, MyInteger> entry : constantTypes.entrySet()) {
-                    AnalysisType type = entry.getKey();
+                for (Map.Entry<BaseAnalysisType, MyInteger> entry : constantTypes.entrySet()) {
+                    BaseAnalysisType type = entry.getKey();
                     Integer counter = entry.getValue().value();
                     if (counter > CONSTANT_COUNTER_DUMP_THRESHOLD) {
                         constantCounters.add(new ConstantCounterEntry(type, counter));

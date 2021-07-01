@@ -33,7 +33,7 @@ import java.util.Map;
 
 import org.graalvm.collections.Pair;
 
-import com.oracle.graal.pointsto.infrastructure.SubstitutionProcessor;
+import com.oracle.graal.analysis.infrastructure.SubstitutionProcessor;
 
 import jdk.vm.ci.meta.MetaAccessProvider;
 import jdk.vm.ci.meta.ResolvedJavaField;

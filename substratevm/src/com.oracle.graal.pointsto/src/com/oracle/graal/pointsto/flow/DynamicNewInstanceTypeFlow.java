@@ -30,7 +30,7 @@ import com.oracle.graal.pointsto.BigBang;
 import com.oracle.graal.pointsto.api.PointstoOptions;
 import com.oracle.graal.pointsto.flow.context.AnalysisContext;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -47,7 +47,7 @@ public final class DynamicNewInstanceTypeFlow extends TypeFlow<BytecodePosition>
      */
     protected final AnalysisContext allocationContext;
 
-    public DynamicNewInstanceTypeFlow(TypeFlow<?> newTypeFlow, AnalysisType type, ValueNode node, BytecodeLocation allocationLabel) {
+    public DynamicNewInstanceTypeFlow(TypeFlow<?> newTypeFlow, BaseAnalysisType type, ValueNode node, BytecodeLocation allocationLabel) {
         super(node.getNodeSourcePosition(), type);
         this.allocationSite = allocationLabel;
         this.allocationContext = null;

@@ -43,7 +43,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.oracle.graal.pointsto.StaticAnalysisEngine;
+import com.oracle.graal.analysis.StaticAnalysisEngine;
 import org.graalvm.compiler.graph.NodeSourcePosition;
 import org.graalvm.compiler.nodes.ValueNode;
 
@@ -88,7 +88,7 @@ import com.oracle.graal.pointsto.flow.TypeFlow;
 import com.oracle.graal.pointsto.flow.UnsafeWriteSinkTypeFlow;
 import com.oracle.graal.pointsto.flow.builder.TypeFlowBuilder;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 
 import jdk.vm.ci.code.BytecodePosition;
 import jdk.vm.ci.common.JVMCIError;
@@ -597,8 +597,8 @@ public class PointsToStats {
         if (source instanceof BytecodePosition) {
             BytecodePosition nodeSource = (BytecodePosition) source;
             return formatMethod(nodeSource.getMethod()) + ":" + nodeSource.getBCI();
-        } else if (source instanceof AnalysisType) {
-            return formatType((AnalysisType) source);
+        } else if (source instanceof BaseAnalysisType) {
+            return formatType((BaseAnalysisType) source);
         } else if (source instanceof AnalysisField) {
             return formatField((AnalysisField) source);
         } else if (flow.graphRef() != null) {
@@ -618,11 +618,11 @@ public class PointsToStats {
         return field.format("%H.%n");
     }
 
-    private static String formatType(AnalysisType type) {
+    private static String formatType(BaseAnalysisType type) {
         return formatType(type, false);
     }
 
-    private static String formatType(AnalysisType type, boolean qualified) {
+    private static String formatType(BaseAnalysisType type, boolean qualified) {
         return type.toJavaName(qualified);
     }
 

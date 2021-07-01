@@ -43,7 +43,7 @@ import java.util.function.Predicate;
 import org.graalvm.nativeimage.hosted.Feature.DuringAnalysisAccess;
 import org.graalvm.nativeimage.impl.RuntimeReflectionSupport;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.hub.ClassForNameSupport;
 import com.oracle.svm.core.hub.DynamicHub;
 import com.oracle.svm.core.jdk.RecordSupport;
@@ -163,7 +163,7 @@ public class ReflectionDataBuilder implements RuntimeReflectionSupport {
          * here, and we assume that user code that requires reflection support is not using
          * substitutions.
          */
-        for (AnalysisType type : access.getUniverse().getTypes()) {
+        for (BaseAnalysisType type : access.getUniverse().getTypes()) {
             Class<?> originalClass = type.getJavaClass();
             if (originalClass != null) {
                 if (processedClasses.contains(originalClass)) {
@@ -208,7 +208,7 @@ public class ReflectionDataBuilder implements RuntimeReflectionSupport {
             return;
         }
 
-        AnalysisType type = access.getMetaAccess().lookupJavaType(clazz);
+        BaseAnalysisType type = access.getMetaAccess().lookupJavaType(clazz);
         /*
          * Make sure the class is registered as reachable before its fields are accessed below to
          * build the reflection metadata.

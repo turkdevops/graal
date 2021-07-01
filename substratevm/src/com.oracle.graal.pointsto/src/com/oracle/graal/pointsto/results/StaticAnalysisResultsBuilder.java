@@ -41,10 +41,10 @@ import com.oracle.graal.pointsto.flow.MethodTypeFlow;
 import com.oracle.graal.pointsto.flow.MonitorEnterTypeFlow;
 import com.oracle.graal.pointsto.flow.TypeFlow;
 import com.oracle.graal.pointsto.flow.context.BytecodeLocation;
-import com.oracle.graal.pointsto.infrastructure.Universe;
+import com.oracle.graal.analysis.infrastructure.Universe;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.results.StaticAnalysisResults.BytecodeEntry;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
@@ -163,7 +163,7 @@ public class StaticAnalysisResultsBuilder extends AbstractAnalysisResultsBuilder
                             .forEach(monitorEnter -> {
                                 TypeState monitorEntryState = monitorEnter.getState();
                                 String typesString = monitorEntryState.closeToAllInstantiated(bb) ? "close to all instantiated"
-                                                : StreamSupport.stream(monitorEntryState.types().spliterator(), false).map(AnalysisType::getName).collect(Collectors.joining(", "));
+                                                : StreamSupport.stream(monitorEntryState.types().spliterator(), false).map(BaseAnalysisType::getName).collect(Collectors.joining(", "));
                                 StringBuilder strb = new StringBuilder();
                                 strb.append("Location: ");
                                 String methodName = method.format("%h.%n(%p)");

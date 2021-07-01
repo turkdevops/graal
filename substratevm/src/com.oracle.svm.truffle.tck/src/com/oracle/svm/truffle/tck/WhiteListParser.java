@@ -39,8 +39,8 @@ import com.oracle.svm.hosted.analysis.NativeImageStaticAnalysisEngine;
 import org.graalvm.nativeimage.Platforms;
 
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.AnalysisUniverse;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.domain.AnalysisUniverse;
 import com.oracle.svm.core.configure.ConfigurationParser;
 import com.oracle.svm.core.util.json.JSONParser;
 import com.oracle.svm.core.util.json.JSONParserException;
@@ -95,7 +95,7 @@ final class WhiteListParser extends ConfigurationParser {
         String className = castProperty(classObject, String.class, "name");
 
         try {
-            AnalysisType clazz = resolve(className);
+            BaseAnalysisType clazz = resolve(className);
             if (clazz == null) {
                 throw new JSONParserException("Class " + className + " not found");
             }
@@ -127,15 +127,15 @@ final class WhiteListParser extends ConfigurationParser {
         }
     }
 
-    private void parseMethods(List<Object> methods, AnalysisType clazz) {
+    private void parseMethods(List<Object> methods, BaseAnalysisType clazz) {
         for (Object method : methods) {
             parseMethod(castMap(method, "Elements of 'methods' array must be method descriptor objects"), clazz);
         }
     }
 
-    private void parseMethod(Map<String, Object> data, AnalysisType clazz) {
+    private void parseMethod(Map<String, Object> data, BaseAnalysisType clazz) {
         String methodName = null;
-        List<AnalysisType> methodParameterTypes = null;
+        List<BaseAnalysisType> methodParameterTypes = null;
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             String propertyName = entry.getKey();
             if (propertyName.equals("name")) {
@@ -175,12 +175,12 @@ final class WhiteListParser extends ConfigurationParser {
         }
     }
 
-    private List<AnalysisType> parseTypes(List<Object> types) {
-        List<AnalysisType> result = new ArrayList<>();
+    private List<BaseAnalysisType> parseTypes(List<Object> types) {
+        List<BaseAnalysisType> result = new ArrayList<>();
         for (Object type : types) {
             String typeName = castProperty(type, String.class, "types");
             try {
-                AnalysisType clazz = resolve(typeName);
+                BaseAnalysisType clazz = resolve(typeName);
                 if (clazz == null) {
                     throw new JSONParserException("Parameter type " + typeName + " not found");
                 }
@@ -192,7 +192,7 @@ final class WhiteListParser extends ConfigurationParser {
         return result;
     }
 
-    private AnalysisType resolve(String type) throws UnsupportedPlatformException {
+    private BaseAnalysisType resolve(String type) throws UnsupportedPlatformException {
         String useType;
         if (type.indexOf('[') != -1) {
             useType = MetaUtil.internalNameToJava(MetaUtil.toInternalName(type), true, true);
@@ -219,7 +219,7 @@ final class WhiteListParser extends ConfigurationParser {
         } while (current != null);
     }
 
-    private boolean registerMethod(AnalysisType type, String methodName, List<AnalysisType> formalParameters) {
+    private boolean registerMethod(BaseAnalysisType type, String methodName, List<BaseAnalysisType> formalParameters) {
         Predicate<ResolvedJavaMethod> p = (m) -> methodName.equals(m.getName());
         p = p.and(new SignaturePredicate(type, formalParameters, analysis));
         Set<AnalysisMethod> methods = PermissionsFeature.findMethods(analysis, type, p);
@@ -229,7 +229,7 @@ final class WhiteListParser extends ConfigurationParser {
         return !methods.isEmpty();
     }
 
-    private boolean registerAllMethodsWithName(AnalysisType type, String name) {
+    private boolean registerAllMethodsWithName(BaseAnalysisType type, String name) {
         Set<AnalysisMethod> methods = PermissionsFeature.findMethods(analysis, type, (m) -> name.equals(m.getName()));
         for (AnalysisMethod method : methods) {
             whiteList.add(method);
@@ -237,7 +237,7 @@ final class WhiteListParser extends ConfigurationParser {
         return !methods.isEmpty();
     }
 
-    private boolean registerConstructor(AnalysisType type, List<AnalysisType> formalParameters) {
+    private boolean registerConstructor(BaseAnalysisType type, List<BaseAnalysisType> formalParameters) {
         Predicate<ResolvedJavaMethod> p = new SignaturePredicate(type, formalParameters, analysis);
         Set<AnalysisMethod> methods = PermissionsFeature.findConstructors(analysis, type, p);
         for (AnalysisMethod method : methods) {
@@ -246,14 +246,14 @@ final class WhiteListParser extends ConfigurationParser {
         return !methods.isEmpty();
     }
 
-    private boolean registerDeclaredConstructors(AnalysisType type) {
+    private boolean registerDeclaredConstructors(BaseAnalysisType type) {
         for (AnalysisMethod method : type.getDeclaredConstructors()) {
             whiteList.add(method);
         }
         return true;
     }
 
-    private boolean registerDeclaredMethods(AnalysisType type) {
+    private boolean registerDeclaredMethods(BaseAnalysisType type) {
         for (AnalysisMethod method : type.getDeclaredMethods()) {
             whiteList.add(method);
         }
@@ -287,7 +287,7 @@ final class WhiteListParser extends ConfigurationParser {
         private final List<? extends ResolvedJavaType> params;
         private final NativeImageStaticAnalysisEngine analysis;
 
-        SignaturePredicate(AnalysisType owner, List<? extends ResolvedJavaType> params, NativeImageStaticAnalysisEngine analysis) {
+        SignaturePredicate(BaseAnalysisType owner, List<? extends ResolvedJavaType> params, NativeImageStaticAnalysisEngine analysis) {
             this.owner = Objects.requireNonNull(owner, "Owner must be non null.").getWrappedWithoutResolve();
             this.params = Objects.requireNonNull(params, "Params must be non null.");
             this.analysis = Objects.requireNonNull(analysis, "Analysis must be non null.");

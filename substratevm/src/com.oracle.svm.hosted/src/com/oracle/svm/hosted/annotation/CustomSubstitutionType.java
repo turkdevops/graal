@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
 import com.oracle.svm.hosted.c.GraalAccess;
 
 import jdk.vm.ci.common.JVMCIError;

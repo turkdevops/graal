@@ -43,8 +43,8 @@ import java.util.stream.Collectors;
 
 import org.graalvm.compiler.serviceprovider.GraalUnsafeAccess;
 
-import com.oracle.graal.pointsto.constraints.UnsupportedFeatures;
-import com.oracle.graal.pointsto.infrastructure.OriginalClassProvider;
+import com.oracle.graal.analysis.constraints.UnsupportedFeatures;
+import com.oracle.graal.analysis.infrastructure.OriginalClassProvider;
 import com.oracle.graal.pointsto.reports.ReportUtils;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.option.SubstrateOptionsParser;

@@ -83,10 +83,10 @@ import org.graalvm.nativeimage.hosted.RuntimeReflection;
 import com.oracle.graal.pointsto.flow.InvokeTypeFlow;
 import com.oracle.graal.pointsto.infrastructure.GraphProvider.Purpose;
 import com.oracle.graal.pointsto.meta.AnalysisField;
-import com.oracle.graal.pointsto.meta.AnalysisMetaAccess;
+import com.oracle.graal.analysis.domain.AnalysisMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
-import com.oracle.graal.pointsto.meta.AnalysisType;
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.ParsingReason;
 import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.SubstrateUtil;
@@ -900,7 +900,7 @@ class RuntimeStrengthenStampsPhase extends StrengthenStampsPhase {
         if (type == null) {
             return null;
         }
-        assert type instanceof AnalysisType;
+        assert type instanceof BaseAnalysisType;
         return hUniverse.lookup(type);
     }
 
@@ -924,7 +924,7 @@ class RuntimeStrengthenStampsPhase extends StrengthenStampsPhase {
 
     @Override
     protected ResolvedJavaType toTarget(ResolvedJavaType type) {
-        AnalysisType result = ((HostedType) type).getWrapped();
+        BaseAnalysisType result = ((HostedType) type).getWrapped();
 
         if (!objectReplacer.typeCreated(result)) {
             /*
@@ -941,20 +941,20 @@ class RuntimeStrengthenStampsPhase extends StrengthenStampsPhase {
 
 /**
  * Same behavior as {@link SubstrateMetaAccessExtensionProvider}, but operating on
- * {@link AnalysisType} instead of {@link SharedType} since parsing of graphs for runtime
+ * {@link BaseAnalysisType} instead of {@link SharedType} since parsing of graphs for runtime
  * compilation happens in the Analysis universe.
  */
 class GraphPrepareMetaAccessExtensionProvider implements MetaAccessExtensionProvider {
 
     @Override
     public JavaKind getStorageKind(JavaType type) {
-        return ((AnalysisType) type).getStorageKind();
+        return ((BaseAnalysisType) type).getStorageKind();
     }
 
     @Override
     public boolean canConstantFoldDynamicAllocation(ResolvedJavaType type) {
-        assert type instanceof AnalysisType : "AnalysisType is required; AnalysisType lazily creates array types of any depth, so type cannot be null";
-        return ((AnalysisType) type).isInstantiated();
+        assert type instanceof BaseAnalysisType : "AnalysisType is required; AnalysisType lazily creates array types of any depth, so type cannot be null";
+        return ((BaseAnalysisType) type).isInstantiated();
     }
 
     @Override

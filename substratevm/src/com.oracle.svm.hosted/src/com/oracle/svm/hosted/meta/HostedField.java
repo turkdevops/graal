@@ -27,7 +27,7 @@ package com.oracle.svm.hosted.meta;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-import com.oracle.graal.pointsto.infrastructure.OriginalFieldProvider;
+import com.oracle.graal.analysis.infrastructure.OriginalFieldProvider;
 import com.oracle.graal.pointsto.meta.AnalysisField;
 import com.oracle.svm.core.meta.SharedField;
 import com.oracle.svm.core.meta.SubstrateObjectConstant;

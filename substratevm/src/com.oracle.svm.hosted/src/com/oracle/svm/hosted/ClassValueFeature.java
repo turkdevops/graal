@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.graalvm.nativeimage.ImageSingletons;
 import org.graalvm.nativeimage.hosted.Feature;
 
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.jdk.JavaLangSubstitutions.ClassValueSupport;
 import com.oracle.svm.util.ReflectionUtil;
@@ -61,8 +61,8 @@ public final class ClassValueFeature implements Feature {
     @Override
     public void duringAnalysis(DuringAnalysisAccess access) {
         FeatureImpl.DuringAnalysisAccessImpl impl = (FeatureImpl.DuringAnalysisAccessImpl) access;
-        List<AnalysisType> types = impl.getUniverse().getTypes();
-        for (AnalysisType t : types) {
+        List<BaseAnalysisType> types = impl.getUniverse().getTypes();
+        for (BaseAnalysisType t : types) {
             if (!t.isReachable()) {
                 continue;
             }

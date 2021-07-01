@@ -37,12 +37,12 @@ public class AnalysisMetaAccessExtensionProvider implements MetaAccessExtensionP
 
     @Override
     public JavaKind getStorageKind(JavaType type) {
-        return ((AnalysisType) type).getStorageKind();
+        return ((BaseAnalysisType) type).getStorageKind();
     }
 
     @Override
     public boolean canConstantFoldDynamicAllocation(ResolvedJavaType type) {
-        assert type instanceof AnalysisType : "AnalysisType is required; AnalysisType lazily creates array types of any depth, so type cannot be null";
+        assert type instanceof BaseAnalysisType : "AnalysisType is required; AnalysisType lazily creates array types of any depth, so type cannot be null";
         return true;
     }
 

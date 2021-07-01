@@ -41,7 +41,7 @@ import org.graalvm.compiler.nodes.java.NewInstanceNode;
 import org.graalvm.nativeimage.c.constant.CEnum;
 import org.graalvm.nativeimage.c.constant.CEnumLookup;
 
-import com.oracle.graal.pointsto.meta.HostedProviders;
+import com.oracle.graal.analysis.infrastructure.HostedProviders;
 import com.oracle.svm.core.meta.SharedMethod;
 import com.oracle.svm.core.util.UserError;
 import com.oracle.svm.hosted.annotation.CustomSubstitutionMethod;

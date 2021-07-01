@@ -34,8 +34,8 @@ import org.graalvm.compiler.nodes.extended.ForeignCallNode;
 import org.graalvm.compiler.nodes.spi.CoreProviders;
 
 import com.oracle.graal.pointsto.BigBang;
-import com.oracle.graal.pointsto.infrastructure.Universe;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.analysis.infrastructure.Universe;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.results.StrengthenGraphs;
 import com.oracle.svm.core.SubstrateUtil;
 import com.oracle.svm.core.annotate.Uninterruptible;
@@ -54,13 +54,13 @@ public class SubstrateStrengthenGraphs extends StrengthenGraphs {
     }
 
     @Override
-    protected AnalysisType getSingleImplementorType(AnalysisType originalType) {
+    protected BaseAnalysisType getSingleImplementorType(BaseAnalysisType originalType) {
         HostedType singleImplementorType = ((HostedType) converter.lookup(originalType)).getSingleImplementor();
         return singleImplementorType == null ? null : singleImplementorType.getWrapped();
     }
 
     @Override
-    protected AnalysisType getStrengthenStampType(AnalysisType originalType) {
+    protected BaseAnalysisType getStrengthenStampType(BaseAnalysisType originalType) {
         HostedType strengthenStampType = ((HostedType) converter.lookup(originalType)).getStrengthenStampType();
         return strengthenStampType == null ? null : strengthenStampType.getWrapped();
     }

@@ -27,7 +27,7 @@ package com.oracle.graal.pointsto.flow;
 import org.graalvm.compiler.nodes.ValueNode;
 
 import com.oracle.graal.pointsto.BigBang;
-import com.oracle.graal.pointsto.meta.AnalysisType;
+import com.oracle.graal.pointsto.meta.BaseAnalysisType;
 import com.oracle.graal.pointsto.typestate.TypeState;
 
 import jdk.vm.ci.code.BytecodePosition;
@@ -48,11 +48,11 @@ public class FilterTypeFlow extends TypeFlow<BytecodePosition> {
     /** True if the filter allows null, false otherwise. */
     private final boolean includeNull;
 
-    public FilterTypeFlow(ValueNode node, AnalysisType filterType, boolean isAssignable, boolean includeNull) {
+    public FilterTypeFlow(ValueNode node, BaseAnalysisType filterType, boolean isAssignable, boolean includeNull) {
         this(node, filterType, false, isAssignable, includeNull);
     }
 
-    public FilterTypeFlow(ValueNode node, AnalysisType filterType, boolean isExact, boolean isAssignable, boolean includeNull) {
+    public FilterTypeFlow(ValueNode node, BaseAnalysisType filterType, boolean isExact, boolean isAssignable, boolean includeNull) {
         super(node.getNodeSourcePosition(), filterType);
         this.isExact = isExact;
         this.isAssignable = isAssignable;

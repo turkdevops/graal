@@ -35,7 +35,7 @@ import org.graalvm.nativeimage.c.function.CEntryPointLiteral;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.impl.CEntryPointLiteralCodePointer;
 
-import com.oracle.graal.pointsto.infrastructure.UniverseMetaAccess;
+import com.oracle.graal.analysis.infrastructure.UniverseMetaAccess;
 import com.oracle.graal.pointsto.meta.AnalysisMethod;
 import com.oracle.svm.core.annotate.AutomaticFeature;
 import com.oracle.svm.core.util.UserError;

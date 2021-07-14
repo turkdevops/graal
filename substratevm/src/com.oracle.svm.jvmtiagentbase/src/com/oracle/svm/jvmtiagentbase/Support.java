@@ -210,13 +210,17 @@ public final class Support {
         }
 
         int interfacesLength = Support.jniFunctions().getGetArrayLength().invoke(env, interfaces);
+        System.out.println("Is 3 ok?");
         guarantee(!clearException(env));
+        System.out.println("3 is ok");
         if (interfacesLength != 1) {
             return clazz;
         }
 
         JNIObjectHandle iface = Support.jniFunctions().getGetObjectArrayElement().invoke(env, interfaces, 0);
+        System.out.println("Is 4 ok?");
         guarantee(!clearException(env) && iface.notEqual(nullHandle()));
+        System.out.println("4 is ok");
 
         return iface;
     }

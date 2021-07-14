@@ -75,10 +75,14 @@ public abstract class JNIHandleSet {
             guarantee(javaLangClassGetInterfaces.isNonNull());
         }
         javaLangReflectProxy = newClassGlobalRef(env, "java/lang/reflect/Proxy");
+        System.out.println("Is 1 OK?");
         guarantee(javaLangReflectProxy.notEqual(nullHandle()));
+        System.out.println("1 is ok");
         try (CTypeConversion.CCharPointerHolder name = Support.toCString("isProxyClass"); CTypeConversion.CCharPointerHolder signature = Support.toCString("(Ljava/lang/Class;)Z")) {
             javaLangReflectProxyIsProxyClass = Support.jniFunctions().getGetStaticMethodID().invoke(env, javaLangReflectProxy, name.get(), signature.get());
+            System.out.println("Is 2 ok");
             guarantee(javaLangReflectProxyIsProxyClass.isNonNull());
+            System.out.println("2 is ok");
         }
     }
 
